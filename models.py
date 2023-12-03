@@ -1,7 +1,9 @@
 # Import the necessary components from the SQLAlchemy library, which is a toolkit for SQL database interaction.
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy.orm import relationship
+from sqlalchemy.sql import func
 from sqlalchemy import Table, Column, Integer, ForeignKey
+import datetime
 
 # Create an instance of the SQLAlchemy class.
 # This object will be used to interact with the database.
@@ -10,10 +12,24 @@ db = SQLAlchemy()
 # Define an association table for a many-to-many relationship between Words and Tags.
 # This is needed because a word can have many tags and a tag can be associated with many words.
 word_tags = Table('word_tags', db.Model.metadata,
-    Column('word_id', Integer, ForeignKey('word.id')),  # Link to the Word table.
-    Column('tag_id', Integer, ForeignKey('tag.id'))    # Link to the Tag table.
+    Column('word_id', Integer, ForeignKey('word.id'), primary_key=True),  # Link to the Word table.
+    Column('tag_id', Integer, ForeignKey('tag.id'), primary_key=True)    # Link to the Tag table.
 )
-
+# Model for logging changes to the database
+class ChangeLog(db.Model):
+    # Unique identifier for each log entry
+    id = db.Column(db.Integer, primary_key=True)
+    # Name of the table where the change occurred
+    table_name = db.Column(db.String(128), nullable=False)
+    # ID of the record that was changed
+    record_id = db.Column(db.Integer, nullable=False)
+    # Type of action performed ('insert', 'update', 'delete')
+    action = db.Column(db.String(128), nullable=False)
+    # Timestamp of when the change was made
+    timestamp = db.Column(db.DateTime(timezone=True), server_default=func.now())
+    # Optional details about the change
+    details = db.Column(db.String(1024))
+    
 # Define a User model, which will be used to create a table in the database.
 # Models in Flask-SQLAlchemy are used to represent database tables.
 class User(db.Model):
