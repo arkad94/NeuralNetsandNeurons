@@ -153,6 +153,37 @@ def generate_report():
   
     return new_report.id  # Return the ID of the new report for reference
 
+def delete_change_log(record_id):
+    # Retrieve a ChangeLog entry by ID from the database.
+    change_log_entry = ChangeLog.query.get(record_id)
+    # If the entry exists, delete it from the database.
+    if change_log_entry:
+        db.session.delete(change_log_entry)
+        db.session.commit()  # Commit changes to the database.
+        return True  # Indicate successful deletion.
+    return False  # Indicate that the entry does not exist
+
+def delete_report(report_id):
+    # Retrieve a Report entry by ID from the database.
+    report_entry = Report.query.get(report_id)
+    # If the entry exists, delete it from the database.
+    if report_entry:
+        db.session.delete(report_entry)
+        db.session.commit()  # Commit changes to the database.
+        return True  # Indicate successful deletion.
+    return False  # Indicate that the entry does not exist.
+
+    #THIS FUNCTION DELETES ALL DATA IN THE DATABASE
+def reset_database_data():
+    # List of model classes to clear
+    models_to_clear = [User, Quiz, UserProgress, UserSettings, Session, Word, Tag, ChangeLog, Report]
+    # Iterate over each model and delete all records
+    for model in models_to_clear:
+        db.session.query(model).delete()
+    # Commit the changes
+    db.session.commit()
+
+
 
 # Initialize the background scheduler.
 scheduler = BackgroundScheduler()

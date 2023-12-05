@@ -1,8 +1,15 @@
 from flask import Flask, jsonify, request
 from models import db
-from admin import (add_user, get_users, update_user, delete_user, 
-                   add_word, get_words, update_word, delete_word,
-                   add_tag, get_tags, update_tag, delete_tag)
+# Import functions from admin.py
+from admin import (
+    add_user, get_users, update_user, delete_user, 
+    add_word, get_words, update_word, delete_word,
+    add_tag, get_tags, update_tag, delete_tag,
+    delete_change_log, reset_database_data,
+    delete_report
+
+                    )
+                 
 
 # Set up a new Flask application.
 app = Flask(__name__)
@@ -123,18 +130,54 @@ def route_delete_tag(tag_id):
     return jsonify({'message': 'Tag deleted' if result else 'Tag not found'})
     # Example URL: DELETE http://localhost:5000/delete_tag/1
 
-@app.cli.command('create_db')
-def create_db():
-    # Command to create all database tables. Only needs to be run once.
-    db.create_all()
-    print("Database tables created.")
-# Get Latest Reportr
+#Delete Function for Changelog
+
+
+
+@app.route('/delete_change_log/<int:record_id>', methods=['DELETE'])
+def route_delete_change_log(record_id):
+    print(f"Attempting to delete ChangeLog with ID: {record_id}")
+    result = delete_change_log(record_id)
+    return jsonify({'message': 'ChangeLog entry deleted' if result else 'ChangeLog entry not found'})
+
+
+
+
+
+
+
+ #RESET DATABASE ROUTE
+@app.route('/reset_database_data', methods=['POST'])
+def route_reset_database_data():
+    reset_database_data()
+    return jsonify({'message': 'Database data has been reset'})
+
+
+
+
+
+# Get Latest Report
 @app.route('/get_latest_report')
 def get_latest_report():
     # If using the database
     latest_report = Report.query.order_by(Report.created_at.desc()).first()
     if latest_report:
         return jsonify({"report": latest_report.content, "created_at": latest_report.created_at})
+
+
+
+
+@app.route('/delete_report/<int:report_id>', methods=['DELETE'])
+def route_delete_report(report_id):
+    result = delete_report(report_id)
+    return jsonify({'message': 'Report deleted' if result else 'Report not found'})
+
+@app.cli.command('create_db')
+def create_db():
+    # Command to create all database tables. Only needs to be run once.
+    db.create_all()
+    print("Database tables created.")
+
 
  # Start the Flask application.
 # At the end of app.py, after defining routes and before running the app
