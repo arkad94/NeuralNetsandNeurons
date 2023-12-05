@@ -1,5 +1,5 @@
 # Importing necessary classes and functions from 'models.py'. These are used to interact with the database.
-from models import db, User, Quiz, UserProgress, UserSettings, Session, Word, Tag, ChangeLog
+from models import db, User, Quiz, UserProgress, UserSettings, Session, Word, Tag, ChangeLog, Report
 # Importing 'func' from SQLAlchemy for SQL functions like aggregations.
 from sqlalchemy.sql import func
 # Importing BackgroundScheduler for running background tasks.
@@ -140,13 +140,19 @@ def add_user(username, email):
 
 # Define the function to generate a report from the ChangeLog.
 def generate_report():
-    # Fetch all log entries, ordered by timestamp in descending order.
+ #Fetch all log entries, ordered by time stamp in descending order   
     logs = ChangeLog.query.order_by(ChangeLog.timestamp.desc()).all()
-    report = []
-    # Compile a report based on the log entries.
-    for log in logs:
-        report.append(f"{log.timestamp}: {log.action} on {log.table_name} (ID: {log.record_id}) - {log.details}")
-    return "\n".join(report)  # Return the compiled report as a string.
+ #Compile a report based on log entries
+    report_content = "\n".join([f"{log.timestamp}: {log.action} on {log.table_name} (ID: {log.record_id}) - {log.details}" for log in logs])
+  # Create a new report instance   
+    new_report = Report(content=report_content)
+  # Addf the new report to the database section and commit it to save it to the database
+    db.session.add(new_report)
+    db.session.commit()
+  #Return the ID of the new report for reference.
+  
+    return new_report.id  # Return the ID of the new report for reference
+
 
 # Initialize the background scheduler.
 scheduler = BackgroundScheduler()

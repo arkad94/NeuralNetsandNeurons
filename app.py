@@ -128,6 +128,13 @@ def create_db():
     # Command to create all database tables. Only needs to be run once.
     db.create_all()
     print("Database tables created.")
+# Get Latest Reportr
+@app.route('/get_latest_report')
+def get_latest_report():
+    # If using the database
+    latest_report = Report.query.order_by(Report.created_at.desc()).first()
+    if latest_report:
+        return jsonify({"report": latest_report.content, "created_at": latest_report.created_at})
 
  # Start the Flask application.
 # At the end of app.py, after defining routes and before running the app

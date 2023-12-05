@@ -80,3 +80,10 @@ class Word(db.Model):
 class Tag(db.Model):
     id = db.Column(db.Integer, primary_key=True)  # A unique identifier for each tag.
     name = db.Column(db.String(50), unique=True, nullable=False)  # The name of the tag, must be unique and present.
+
+# Define a Report model to store Reports in the database.
+class Report(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    created_at = db.Column(db.DateTime, default=datetime.datetime.utcnow)
+    content = db.Column(db.Text, nullable=False)
+
