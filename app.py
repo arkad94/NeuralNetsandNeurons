@@ -140,7 +140,7 @@ if __name__ == '__main__':
         pass
         # Generate initial report
     initial_report = generate_report()
-    print(initial_report)  # or handle the report as needed
+    
     
     app.run(debug=True)
     # Debug mode is enabled for development purposes.
