@@ -1,183 +1,167 @@
-# Import the database instance and all the models from models.py.
-# These models represent the tables in our database.
+# Importing necessary classes and functions from 'models.py'. These are used to interact with the database.
 from models import db, User, Quiz, UserProgress, UserSettings, Session, Word, Tag, ChangeLog
+# Importing 'func' from SQLAlchemy for SQL functions like aggregations.
 from sqlalchemy.sql import func
+# Importing BackgroundScheduler for running background tasks.
 from apscheduler.schedulers.background import BackgroundScheduler
 
+# Initialize a background scheduler for running scheduled tasks.
 scheduler = BackgroundScheduler()
 
-# CRUD operations for User
-# CRUD stands for Create, Read, Update, Delete - common operations for managing data.
+# CRUD Operations for User
+# CRUD: Create, Read, Update, Delete - essential database operations.
 
 def add_user(username, email):
-    # Create a new User object with a username and email.
+    # Create a new User instance with provided username and email.
     new_user = User(username=username, email=email)
-    # Add the new User object to the database session - think of this as preparing the data.
+    # Add this new user to the database session, staging it for commit.
     db.session.add(new_user)
-    # Save (commit) the changes to the database, making the addition of the new user permanent.
+    # Commit the staged changes to the database, saving the new user.
     db.session.commit()
 
 def get_users():
-    # Query the database for all User records.
-    # The .all() method fetches all records from the User table.
+    # Fetch and return all user records from the database.
     return User.query.all()
 
 def update_user(user_id, new_username, new_email):
-    # Retrieve a User object from the database by its ID.
+    # Retrieve a user by ID from the database.
     user = User.query.get(user_id)
-    # If the user exists, update the username and email with the new values.
+    # If user exists, update the username and email.
     if user:
         user.username = new_username
         user.email = new_email
-        # Save the changes to the database.
-        db.session.commit()
-        return True  # Return True to indicate the operation was successful.
-    return False  # If the user does not exist, return False.
+        db.session.commit()  # Commit changes to the database.
+        return True  # Indicate successful update.
+    return False  # Indicate that the user does not exist.
 
 def delete_user(user_id):
-    # Retrieve a User object from the database by its ID.
+    # Retrieve a user by ID from the database.
     user = User.query.get(user_id)
-    # If the user exists, remove it from the database.
+    # If user exists, delete it from the database.
     if user:
         db.session.delete(user)
-        # Save the changes to the database.
-        db.session.commit()
-        return True  # Return True to indicate the user was deleted.
-    return False  # If the user does not exist, return False.
+        db.session.commit()  # Commit changes to the database.
+        return True  # Indicate successful deletion.
+    return False  # Indicate that the user does not exist.
 
-# CRUD for Quiz
-# The operations for Quiz should be implemented similarly to the User CRUD operations above.
+# CRUD Operations for Quiz, UserProgress, UserSettings, Session
+# Implement CRUD operations for these models similar to the User model.
 
-# CRUD for UserProgress
-# Implement CRUD operations for UserProgress similar to User.
-
-# CRUD for UserSettings
-# Implement CRUD operations for UserSettings similar to User.
-
-# CRUD for Session
-# Implement CRUD operations for Session similar to User.
-
-# CRUD operations for Word
-#Generate Report Function
-def generate_report():
-    logs = ChangeLog.query.order_by(ChangeLog.timestamp.desc()).all()
-    report = []
-    for log in logs:
-        report.append(f"{log.timestamp}: {log.action} on {log.table_name} (ID: {log.record_id}) - {log.details}")
-    return "\n".join(report)
-
-
+# CRUD Operations for Word
 def add_word(japanese, english):
-    # Create a new Word object with Japanese and English meanings.
+    # Create a new Word instance with Japanese and English translations.
     new_word = Word(japanese=japanese, english=english)
-    # Add the new Word object to the database session.
-    db.session.add(new_word)
-    # Save the new word to the database.
-    db.session.commit()
+    db.session.add(new_word)  # Add to database session.
+    db.session.commit()  # Save the new word to the database.
+    # Logging the addition of a new word.
     add_change_log('Word', new_word.id, 'insert', f'Added word: {japanese} - {english}')
 
 def get_words():
-    # Query the database for all Word records.
+    # Fetch and return all word records from the database.
     return Word.query.all()
 
 def update_word(word_id, new_japanese, new_english):
-    # Retrieve a Word object by its ID.
+    # Retrieve a word by ID from the database.
     word = Word.query.get(word_id)
-    # If the word exists, update its Japanese and English meanings.
+    # If word exists, update its Japanese and English translations.
     if word:
         word.japanese = new_japanese
         word.english = new_english
-        # Save the changes to the database.
-        db.session.commit()
-        add_change_log('Word', word.id, 'update', f'Updated word from {original_japanese} - {original_english} to {new_japanese} - {new_english}')
-    return True  # Return True to indicate the operation was successful.
-    return False  # If the word does not exist, return False.
+        db.session.commit()  # Commit changes to the database.
+        # Logging the update of a word.
+        add_change_log('Word', word.id, 'update', f'Updated word to {new_japanese} - {new_english}')
+        return True  # Indicate successful update.
+    return False  # Indicate that the word does not exist.
 
 def delete_word(word_id):
-    # Retrieve a Word object by its ID.
+    # Retrieve a word by ID from the database.
     word = Word.query.get(word_id)
-    # If the word exists, remove it from the database.
+    # If word exists, delete it from the database.
     if word:
         db.session.delete(word)
-        # Save the changes to the database.
-        db.session.commit()
-        add_change_log('Word', word.id, 'delete', f'Deleted word: {word.japanese} - {word.english}')               
-        return True  # Return True to indicate the word was deleted.
-    return False  # If the word does not exist, return False.
+        db.session.commit()  # Commit changes to the database.
+        # Logging the deletion of a word.
+        add_change_log('Word', word.id, 'delete', f'Deleted word: {word.japanese} - {word.english}')
+        return True  # Indicate successful deletion.
+    return False  # Indicate that the word does not exist.
 
-# CRUD operations for Tag
-
+# CRUD Operations for Tag
 def add_tag(name):
-    # Create a new Tag object with a name.
+    # Create a new Tag instance with a given name.
     new_tag = Tag(name=name)
-    # Add the new Tag object to the database session.
-    db.session.add(new_tag)
-    # Save the new tag to the database.
-    db.session.commit()
+    db.session.add(new_tag)  # Add to database session.
+    db.session.commit()  # Save the new tag to the database.
+    # Logging the addition of a new tag.
     add_change_log('Tag', new_tag.id, 'insert', f'Added tag: {name}')
 
 def get_tags():
-    # Query the database for all Tag records.
+    # Fetch and return all tag records from the database.
     return Tag.query.all()
 
 def update_tag(tag_id, new_name):
-    # Retrieve a Tag object by its ID.
+    # Retrieve a tag by ID from the database.
     tag = Tag.query.get(tag_id)
-    # If the tag exists, update its name.
+    # If tag exists, update its name.
     if tag:
         tag.name = new_name
-        # Save the changes to the database.
-        db.session.commit()
-        add_change_log('Tag', tag.id, 'update', f'Updated tag from {original_name} to {new_name}')
-        return True  # Return True to indicate the operation was successful.
-    return False  # If the tag does not exist, return False.
+        db.session.commit()  # Commit changes to the database.
+        # Logging the update of a tag.
+        add_change_log('Tag', tag.id, 'update', f'Updated tag to {new_name}')
+        return True  # Indicate successful update.
+    return False  # Indicate that the tag does not exist.
 
 def delete_tag(tag_id):
-    # Retrieve a Tag object by its ID.
+    # Retrieve a tag by ID from the database.
     tag = Tag.query.get(tag_id)
-    # If the tag exists, remove it from the database.
+    # If tag exists, delete it from the database.
     if tag:
         db.session.delete(tag)  # Delete the tag from the session.
-        db.session.commit()     # Commit the transaction to make the change permanent in the database.
+        db.session.commit()  # Commit the transaction to the database.
+        # Logging the deletion of a tag.
         add_change_log('Tag', tag.id, 'delete', f'Deleted tag: {tag.name}')
-        return True             # Return True to indicate successful deletion.
-    return False  # If the tag does not exist, return False.
+        return True  # Indicate successful deletion.
+    return False  # Indicate that the tag does not exist.
 
-# CRUD operations for ChangeLog
+# CRUD Operations for ChangeLog
 def add_change_log(table_name, record_id, action, details=None):
+    # Create a new log entry for changes made in the database.
     new_log = ChangeLog(table_name=table_name, record_id=record_id, action=action, details=details)
-    db.session.add(new_log)
-    db.session.commit()
+    db.session.add(new_log)  # Add log entry to the database session.
+    db.session.commit()  # Save the log entry to the database.
 
-# Update existing CRUD functions to include logging
-# Example for add_user (apply similar updates to other CRUD functions)
+# Update existing CRUD functions to include logging.
+# Example for add_user (similar updates should be applied to other CRUD functions).
 def add_user(username, email):
     new_user = User(username=username, email=email)
     db.session.add(new_user)
     db.session.commit()
+    # Log the addition of a new user.
     add_change_log('User', new_user.id, 'insert', f'Added user {username}')
 
-# Define the report generation function
+# Define the function to generate a report from the ChangeLog.
 def generate_report():
+    # Fetch all log entries, ordered by timestamp in descending order.
     logs = ChangeLog.query.order_by(ChangeLog.timestamp.desc()).all()
     report = []
+    # Compile a report based on the log entries.
     for log in logs:
         report.append(f"{log.timestamp}: {log.action} on {log.table_name} (ID: {log.record_id}) - {log.details}")
-    return "\n".join(report)
+    return "\n".join(report)  # Return the compiled report as a string.
 
-# Initialize scheduler
+# Initialize the background scheduler.
 scheduler = BackgroundScheduler()
 
-# Define a job to generate a report
+# Define a job to automatically generate a report.
 def scheduled_report_job():
     report = generate_report()
-    # Here you can save the report to a file, send it via email, or store it in the database
+    # Additional code to handle the generated report (e.g., saving, emailing, etc.)
 
-# Add the job to the scheduler
-scheduler.add_job(scheduled_report_job, 'interval', hours=24)  # Adjust the interval as needed
+# Add the report generation job to the scheduler with a 24-hour interval.
+scheduler.add_job(scheduled_report_job, 'interval', hours=24)  # Interval can be adjusted as needed.
 
-# Start the scheduler
+# Start the scheduler to begin running scheduled jobs.
 scheduler.start()
 
 # (Include any remaining parts of the existing script, such as initialization and main routine)
+
 

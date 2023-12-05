@@ -129,7 +129,18 @@ def create_db():
     db.create_all()
     print("Database tables created.")
 
+ # Start the Flask application.
+# At the end of app.py, after defining routes and before running the app
 if __name__ == '__main__':
-    # Start the Flask application.
+   
+    from admin import scheduler  # Make sure to import the scheduler from admin.py
+    try:
+        scheduler.start()
+    except (KeyboardInterrupt, SystemExit):
+        pass
+        # Generate initial report
+    initial_report = generate_report()
+    print(initial_report)  # or handle the report as needed
+    
     app.run(debug=True)
     # Debug mode is enabled for development purposes.
