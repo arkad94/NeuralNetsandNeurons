@@ -19,3 +19,6 @@ Thumbs.db
 # Data files
 *.csv
 *.json
+
+# Ignore the instance directory
+instance/

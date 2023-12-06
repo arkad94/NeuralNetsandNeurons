@@ -1,14 +1,9 @@
 from flask import Flask, jsonify, request
 from models import db
 # Import functions from admin.py
-from admin import (
-    add_user, get_users, update_user, delete_user, 
-    add_word, get_words, update_word, delete_word,
-    add_tag, get_tags, update_tag, delete_tag,
-    delete_change_log, reset_database_data,
-    delete_report
+from db_operations import add_user, get_users, update_user, delete_user
 
-                    )
+  
                  
 
 # Set up a new Flask application.
