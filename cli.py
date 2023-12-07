@@ -26,6 +26,9 @@ command_completer = WordCompleter(commands, ignore_case=True)
 
 
 logo = r"""
+                                                                                          
+                                                                             
+
        .d8b.                                 
        _.d8888888b._                                     
      .88888888888888b.               (      (      (      (
@@ -43,6 +46,9 @@ d888888888b 888 d88888888b
      Ob=dP d888b Yb=dO
       `"` O88888O `"`
    jgs     'Y8P'
+         
+    
+                                                                                          
 
 """
 
