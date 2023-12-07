@@ -47,17 +47,73 @@ def delete_user(user_id):
 # Word CRUD Operations
 # Implement similar functions for add_word, get_words, update_word, delete_word
 
-def add_word( japenese_word, english_word)
- try:
-    new_word = word( japenese_word=japenese_word, english_word=english_word)
-    db.session.add(new_word)
-    add_change_log('word', new_word.id, 'insert' , f'Added word {japanese_word}' )
-    return "word added successfully"
-except SQLAlchemyError as e:
-        return f"Error adding word: {e}"
+
 
 # Tag CRUD Operations
 # Implement similar functions for add_tag, get_tags, update_tag, delete_tag
+def add_word(japanese, english):
+    try:
+        new_word = Word(japanese=japanese, english=english)
+        db.session.add(new_word)
+        db.session.commit()
+        add_change_log('Word', new_word.id, 'insert', f'Added word {japanese}')
+        return "Word added successfully"
+    except SQLAlchemyError as e:
+        return f"Error adding word: {e}"
+
+def get_words():
+    try:
+        return Word.query.all()
+    except SQLAlchemyError as e:
+        return f"Error fetching words: {e}"
+
+def update_word(word_id, new_japanese, new_english):
+    try:
+        word = Word.query.get(word_id)
+        if word:
+            word.japanese = new_japanese
+            word.english = new_english
+            db.session.commit()
+            add_change_log('Word', word.id, 'update', f'Updated word {new_japanese}')
+            return True
+        return False
+    except SQLAlchemyError as e:
+        return f"Error updating word: {e}" 
+def delete_word(word_id):
+    word = Word.query.get(word_id)
+    if word:
+        db.session.delete(word)
+        db.session.commit()
+        return True
+    else:
+        return False
+
+def add_tag(name):
+    tag = Tag(name=name)
+    db.session.add(tag)
+    db.session.commit()
+    return "Tag added successfully"
+
+def get_tags():
+    return Tag.query.all()
+
+def update_tag(tag_id, new_name):
+    tag = Tag.query.get(tag_id)
+    if tag:
+        tag.name = new_name
+        db.session.commit()
+        return "Tag updated successfully"
+    else:
+        return "Tag not found"
+
+def delete_tag(tag_id):
+    tag = Tag.query.get(tag_id)
+    if tag:
+        db.session.delete(tag)
+        db.session.commit()
+        return "Tag deleted successfully"
+    else:
+        return "Tag not found"   
 
 def add_change_log(table_name, record_id, action, details=None):
     try:

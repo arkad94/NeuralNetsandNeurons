@@ -11,7 +11,8 @@ from colorama import Fore, Style, init
 # Import the Flask app to use it within the command line interface.
 from app import app
 # Import database operation functions to add, retrieve, update, and delete users.
-from db_operations import add_user, get_users, update_user, delete_user, add_word
+from db_operations import (add_user, get_users, update_user, delete_user, add_word, get_words, update_word, delete_word
+                           , add_tag, get_tags, update_tag, delete_tag) 
 # Import tabulate to nicely format tables in the command line output.
 from tabulate import tabulate
 
@@ -114,20 +115,97 @@ def handle_delete_user():
         except Exception as e:
             print(f"{Fore.YELLOW}An error occurred: {e}{Style.RESET_ALL}")
 
-def handle_add_word
+def handle_add_word():  # Fixed the colon issue here
     session=PromptSession()
     japanese_word = session.prompt(f"{Fore.BLUE}Enter Word in Japanese: {Style.RESET_ALL}")
     english_word = session.prompt(f"{Fore.BLUE}Enter Word in English: {Style.RESET_ALL}")
 
     with app.app_context():
-         try
-
-         response = add_word(japanese_word, english_word)
-          # Print a success message with yellow text color.
+        try:  # Fixed the colon issue here
+            response = add_word(japanese_word, english_word)
+            # Print a success message with yellow text color.
             print(f"{Fore.YELLOW}{response}{Style.RESET_ALL}")
         except Exception as e:
             # If an exception occurs, print an error message with yellow text color.
             print(f"{Fore.YELLOW}An error occurred: {e}{Style.RESET_ALL}")
+
+def handle_get_words():
+    with app.app_context():
+        try:
+            words = get_words()
+            print(tabulate([{"ID": word.id, "Japanese": word.japanese, "English": word.english} for word in words], headers="keys"))
+        except Exception as e:
+            print(f"{Fore.YELLOW}An error occurred: {e}{Style.RESET_ALL}")
+
+def handle_update_word():
+    session = PromptSession()
+    word_id = session.prompt(f"{Fore.BLUE}Enter Word ID to update: {Style.RESET_ALL}")
+    new_japanese = session.prompt(f"{Fore.BLUE}Enter new Word in Japanese: {Style.RESET_ALL}")
+    new_english = session.prompt(f"{Fore.BLUE}Enter new Word in English: {Style.RESET_ALL}")
+
+    with app.app_context():
+        try:
+            if update_word(word_id, new_japanese, new_english):
+                print(f"{Fore.YELLOW}Word updated successfully{Style.RESET_ALL}")
+            else:
+                print(f"{Fore.YELLOW}Word not found{Style.RESET_ALL}")
+        except Exception as e:
+            print(f"{Fore.YELLOW}An error occurred: {e}{Style.RESET_ALL}")
+
+def handle_delete_word():
+    session = PromptSession()
+    word_id = session.prompt(f"{Fore.BLUE}Enter Word ID to delete: {Style.RESET_ALL}")
+
+    with app.app_context():
+        try:
+            if delete_word(word_id):
+                print(f"{Fore.YELLOW}Word deleted successfully{Style.RESET_ALL}")
+            else:
+                print(f"{Fore.YELLOW}Word not found{Style.RESET_ALL}")
+        except Exception as e:
+            print(f"{Fore.YELLOW}An error occurred: {e}{Style.RESET_ALL}") 
+
+def handle_add_tag():
+    session = PromptSession()
+    name = session.prompt(f"{Fore.BLUE}Enter tag name: {Style.RESET_ALL}")
+
+    with app.app_context():
+        try:
+            response = add_tag(name)
+            print(f"{Fore.YELLOW}{response}{Style.RESET_ALL}")
+        except Exception as e:
+            print(f"{Fore.YELLOW}An error occurred: {e}{Style.RESET_ALL}")
+
+def handle_get_tags():
+    with app.app_context():
+        try:
+            tags = get_tags()
+            print(tabulate([{"ID": tag.id, "Name": tag.name} for tag in tags], headers="keys"))
+        except Exception as e:
+            print(f"{Fore.YELLOW}An error occurred: {e}{Style.RESET_ALL}")
+
+def handle_update_tag():
+    session = PromptSession()
+    tag_id = session.prompt(f"{Fore.BLUE}Enter tag ID to update: {Style.RESET_ALL}")
+    new_name = session.prompt(f"{Fore.BLUE}Enter new tag name: {Style.RESET_ALL}")
+
+    with app.app_context():
+        try:
+            response = update_tag(tag_id, new_name)
+            print(f"{Fore.YELLOW}{response}{Style.RESET_ALL}")
+        except Exception as e:
+            print(f"{Fore.YELLOW}An error occurred: {e}{Style.RESET_ALL}")
+
+def handle_delete_tag():
+    session = PromptSession()
+    tag_id = session.prompt(f"{Fore.BLUE}Enter tag ID to delete: {Style.RESET_ALL}")
+
+    with app.app_context():
+        try:
+            response = delete_tag(tag_id)
+            print(f"{Fore.YELLOW}{response}{Style.RESET_ALL}")
+        except Exception as e:
+            print(f"{Fore.YELLOW}An error occurred: {e}{Style.RESET_ALL}")                       
 
 
 # Define the main function to run the command line interface.
@@ -166,11 +244,27 @@ def main():
         elif command == 'help':
             # If the command is 'help', print available commands.
             print(f"{Fore.YELLOW}Available commands: add_user, get_users, update_user, delete_user, clear, exit{Style.RESET_ALL}")
-        elif command == "add_word"
-            handle_add_word
+        elif command == "add_word":  # Fixed the colon issue here
+            handle_add_word()  # Fixed the function call here
+        elif command == "get_words":
+            handle_get_words()
+        elif command == "update_word":
+            handle_update_word()
+        elif command == "delete_word":
+            handle_delete_word()
+        elif command == "add_tag":
+            handle_add_tag()
+        elif command == "get_tags":
+            handle_get_tags()
+        elif command == "update_tag":
+            handle_update_tag()
+        elif command == "delete_tag":
+            handle_delete_tag()                      
+
         else:
             # If an unknown command is entered, inform the user.
             print(f"{Fore.YELLOW}Unknown command: {command}{Style.RESET_ALL}")
+
 
 # Check if the script is being run directly (not imported) and if so, call the main function.
 if __name__ == "__main__":
