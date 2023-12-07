@@ -18,16 +18,8 @@ from prompter import create_prompt
 from prompt_toolkit.completion import WordCompleter
 from tabulate import tabulate
 
-# Initialize colorama to automatically reset text color after each print statement.
-init(autoreset=True)
-commands = ["Word of The Day", "A Story", "Another Command"]
-command_completer = WordCompleter(commands, ignore_case=True)
-
-
-
 logo = r"""
-                                                                                          
-                                                                             
+       Y
 
        .d8b.                                 
        _.d8888888b._                                     
@@ -46,11 +38,15 @@ d888888888b 888 d88888888b
      Ob=dP d888b Yb=dO
       `"` O88888O `"`
    jgs     'Y8P'
-         
-    
-                                                                                          
 
 """
+
+ 
+
+ 
+
+# Initialize colorama to automatically reset text color after each print statement.
+init(autoreset=True)
 
 # Define a custom Validator class to check if input text is a valid email.
 class EmailValidator(Validator):
@@ -70,12 +66,12 @@ def clear_screen():
 
 def handle_prompter():
     session = PromptSession()
-    CMD = session.prompt(f"{Fore.BLUE}Enter CMD: {Style.RESET_ALL}", completer=command_completer)
+    CMD = session.prompt(f"{Fore.BLUE}Enter CMD: {Style.RESET_ALL}", completer=WordCompleter(['command1', 'command2', 'command3']))
     Tag = session.prompt(f"{Fore.BLUE}Enter Tag: {Style.RESET_ALL}")
     SPINS = session.prompt(f"{Fore.BLUE}Enter SPINS: {Style.RESET_ALL}")
 
     prompt = create_prompt(CMD, Tag, SPINS)
-    print(f"{Fore.YELLOW}Generated Prompt: {prompt}{Style.RESET_ALL}")
+    
 
    
 
@@ -294,3 +290,8 @@ def main():
 # Check if the script is being run directly (not imported) and if so, call the main function.
 if __name__ == "__main__":
     main()
+
+if platform.system() == "Windows":
+        os.system("pause")  # Pause on Windows
+else:
+        input("Press enter to exit")  # Pause on Unix-based systems

@@ -1,15 +1,31 @@
+import os
+from openai import OpenAI
+
+api_key = os.getenv("OPENAI_API_KEY")
+client = OpenAI(api_key=api_key)
+
 def create_prompt(CMD, tag, SPINS):
     cmd_templates = {
-        "Word of The Day": "Template for command 1",
+        "Word of The Day in Japanese": "Template for command 1",
         "A Story": "Template for command 2",
         # Add more CMDs and their templates here
     }
+    
     prompt_template = cmd_templates.get(CMD, "Default template if CMD not found")
-    # Now incorporate tag and SPINS into the prompt
     final_prompt = f"{prompt_template} with Tag: {tag} and Additional Instructions: {SPINS}"
     return final_prompt
 
+final_prompt = create_prompt("A Story", "Technology", "Include examples")
 
-if __name__ == "__main__":
-    example_prompt = create_prompt("A Story", "Technology", "Include examples")
-    print(example_prompt)
+# Make the API call using the generated prompt
+chat_completion = client.chat.completions.create(
+    messages=[
+        {"role": "user", "content": final_prompt}
+    ],
+    model="gpt-4",
+)
+
+print(chat_completion.choices[0].message.content)
+
+
+
