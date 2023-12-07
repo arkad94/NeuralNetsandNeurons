@@ -13,11 +13,16 @@ from app import app
 # Import database operation functions to add, retrieve, update, and delete users.
 from db_operations import (add_user, get_users, update_user, delete_user, add_word, get_words, update_word, delete_word
                            , add_tag, get_tags, update_tag, delete_tag) 
+from prompter import create_prompt
 # Import tabulate to nicely format tables in the command line output.
+from prompt_toolkit.completion import WordCompleter
 from tabulate import tabulate
 
 # Initialize colorama to automatically reset text color after each print statement.
 init(autoreset=True)
+commands = ["Word of The Day", "A Story", "Another Command"]
+command_completer = WordCompleter(commands, ignore_case=True)
+
 
 
 logo = r"""
@@ -56,6 +61,17 @@ def clear_screen():
     os.system('cls' if platform.system() == 'Windows' else 'clear')
     # Print the logo with yellow color using the Fore module from colorama.
     print(f"{Fore.YELLOW}{logo}{Style.RESET_ALL}")
+
+def handle_prompter():
+    session = PromptSession()
+    CMD = session.prompt(f"{Fore.BLUE}Enter CMD: {Style.RESET_ALL}", completer=command_completer)
+    Tag = session.prompt(f"{Fore.BLUE}Enter Tag: {Style.RESET_ALL}")
+    SPINS = session.prompt(f"{Fore.BLUE}Enter SPINS: {Style.RESET_ALL}")
+
+    prompt = create_prompt(CMD, Tag, SPINS)
+    print(f"{Fore.YELLOW}Generated Prompt: {prompt}{Style.RESET_ALL}")
+
+   
 
 # Define a function to handle the 'add_user' command.
 def handle_add_user():
@@ -259,7 +275,10 @@ def main():
         elif command == "update_tag":
             handle_update_tag()
         elif command == "delete_tag":
-            handle_delete_tag()                      
+            handle_delete_tag()
+        elif command == 'prompter':
+            handle_prompter()
+                          
 
         else:
             # If an unknown command is entered, inform the user.
