@@ -11,7 +11,7 @@ from colorama import Fore, Style, init
 # Import the Flask app to use it within the command line interface.
 from app import app
 # Import database operation functions to add, retrieve, update, and delete users.
-from db_operations import add_user, get_users, update_user, delete_user
+from db_operations import add_user, get_users, update_user, delete_user, add_word
 # Import tabulate to nicely format tables in the command line output.
 from tabulate import tabulate
 
@@ -114,6 +114,22 @@ def handle_delete_user():
         except Exception as e:
             print(f"{Fore.YELLOW}An error occurred: {e}{Style.RESET_ALL}")
 
+def handle_add_word
+    session=PromptSession()
+    japanese_word = session.prompt(f"{Fore.BLUE}Enter Word in Japanese: {Style.RESET_ALL}")
+    english_word = session.prompt(f"{Fore.BLUE}Enter Word in English: {Style.RESET_ALL}")
+
+    with app.app_context():
+         try
+
+         response = add_word(japanese_word, english_word)
+          # Print a success message with yellow text color.
+            print(f"{Fore.YELLOW}{response}{Style.RESET_ALL}")
+        except Exception as e:
+            # If an exception occurs, print an error message with yellow text color.
+            print(f"{Fore.YELLOW}An error occurred: {e}{Style.RESET_ALL}")
+
+
 # Define the main function to run the command line interface.
 def main():
     # Print the logo with yellow color at the start of the program.
@@ -150,6 +166,8 @@ def main():
         elif command == 'help':
             # If the command is 'help', print available commands.
             print(f"{Fore.YELLOW}Available commands: add_user, get_users, update_user, delete_user, clear, exit{Style.RESET_ALL}")
+        elif command == "add_word"
+            handle_add_word
         else:
             # If an unknown command is entered, inform the user.
             print(f"{Fore.YELLOW}Unknown command: {command}{Style.RESET_ALL}")

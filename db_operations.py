@@ -47,6 +47,15 @@ def delete_user(user_id):
 # Word CRUD Operations
 # Implement similar functions for add_word, get_words, update_word, delete_word
 
+def add_word( japenese_word, english_word)
+ try:
+    new_word = word( japenese_word=japenese_word, english_word=english_word)
+    db.session.add(new_word)
+    add_change_log('word', new_word.id, 'insert' , f'Added word {japanese_word}' )
+    return "word added successfully"
+except SQLAlchemyError as e:
+        return f"Error adding word: {e}"
+
 # Tag CRUD Operations
 # Implement similar functions for add_tag, get_tags, update_tag, delete_tag
 
