@@ -11,7 +11,7 @@ from colorama import Fore, Style, init
 # Import the Flask app to use it within the command line interface.
 from app import app
 # Import database operation functions to add, retrieve, update, and delete users.
-from db_operations import (add_user, get_users, update_user, delete_user, add_word, get_words, update_word, delete_word
+from db_operations import ( add_user, get_users, update_user, delete_user, add_word, get_words, update_word, delete_word
                            , add_tag, get_tags, update_tag, delete_tag) 
 from prompter import (create_prompt, send_prompt_to_openai)
 # Import tabulate to nicely format tables in the command line output.
@@ -19,25 +19,26 @@ from prompt_toolkit.completion import WordCompleter
 from tabulate import tabulate
 
 logo = r"""
-       Y
 
-       .d8b.                                 
-       _.d8888888b._                                     
-     .88888888888888b.               (      (      (      (
-    d88888888888888888b              )\     )\ )   )\     )\ )    )    (
-    8888888888888888888              ((((_)(  (()/( ((((_)(  (()/(   (     )\   (
-    Y88888888888888888P               )\ _ )\  ((_))  )\ _ )\  ((_))  )\  '((_)  )\ )
-     'Y8888888888888P'                (_)_\(_) _| |  (_)_\(_) _| | _((_))  (_) _(_/(
-   _..._ 'Y88888P' _..._               / _ \ / _` || '  \()  / _ \ / _` || '  \() | || ' \)) 
- .d88888b. Y888P .d88888b.            /_/ \_\\__,_||_|_|_|  /_/ \_\\__,_||_|_|_|  |_||_||_|
-d888888888b 888 d88888888b
-888P  `Y8888888888P'  Y888
- b8b    Y88888888P    d8Y
-  `"'  #############  '"`
-         dP d8b Yb
-     Ob=dP d888b Yb=dO
-      `"` O88888O `"`
-   jgs     'Y8P'
+
+
+ #*=---*%@@*+#@@@%
+        %##%%**+*%@@%*+-----=+######%##%%####==*%*%%-----=*%@@%*+*#%@#+%
+        ##%**#%#*++*%@@@@#--*+*********#%#%%%**+++#@--=*@@@%*+**%%**#*+*
+         #+##+##%#*#*=+**=-*%@@@@@@@@@@@@@@%%*+**##@=--=+++*+#@%#*#@+++#
+         ###@#***%#**#++--=#+--%@@@@@@@@@@%#@+=**-*%+--=*+=*%%**%%*=+%%%
+        #***#%#%**%#*+*+=-+%++*%%%%%%%%@@@@#@%%#*##%#-+#=*%%%+*%%++*##*
+        %@**#+*%@*=*++**++*%############%+#%#*+#*+*%#=++##*++*%%##+%#*%%
+        ##@#%*+*+%#**=+#*+#####*##*######+###***%#%%%==*+*+#*@%**+%@#%*
+        %#=+%%%**%*#%#=+=+#%####%%%###%%%%%########%#-
+        %%#+++++=+**##*+=+%#############%@##%%%%%%%%%=
+        @@@%%#%%%#==+*+=-**#*###########+*##%%%@%%#***
+                         #+*%##%%%%###***%@#%###%%#***##%%@%=
+                         %@%%###@%@%%###%%@###%%%%%%%%%@#%=-=
+                         ##%%###%%%%#%#%###%@@@@@@@@@%%#*+==
+                        ###%%%@@@@@@@@@@@@@@@@@@@%%#**++==-
+
+
 
 """
 
@@ -77,8 +78,7 @@ def handle_prompter():
         with app.app_context():  # This is the added line
             print("Adding difficult words to database...")
             for japanese, english in difficult_words:
-                add_result = add_word(japanese.strip(), english.strip())
-                print(add_result)  # For debugging
+                add_word(japanese, english)
 
 
 

@@ -12,6 +12,12 @@ def add_user(username, email):
         return "User added successfully"
     except SQLAlchemyError as e:
         return f"Error adding user: {e}"
+def get_users():
+    try:
+        return User.query.all()
+    except SQLAlchemyError as e:
+        return f"Error fetching users: {e}"
+
 
 def get_users():
     try:
@@ -45,6 +51,9 @@ def delete_user(user_id):
         return f"Error deleting user: {e}"
 
 # Word CRUD Operations
+
+
+        return f"Error adding word: {e}"
 # Implement similar functions for add_word, get_words, update_word, delete_word
 
 
@@ -52,20 +61,21 @@ def delete_user(user_id):
 # Tag CRUD Operations
 # Implement similar functions for add_tag, get_tags, update_tag, delete_tag
 def add_word(japanese, english):
-    # Check if the word already exists in the database
-    existing_word = Word.query.filter_by(japanese=japanese).first()
-    if existing_word:
-        return f"Word '{japanese}' already exists in the database."
-
     try:
-        # Create a new Word object and add it to the database
+        # Check if the word already exists in the database
+        existing_word = Word.query.filter_by(japanese=japanese).first()
+        if existing_word:
+            return "Word already exists"
+
+        # If the word doesn't exist, add it to the database
         new_word = Word(japanese=japanese, english=english)
         db.session.add(new_word)
         db.session.commit()
-        add_change_log('Word', new_word.id, 'insert', f'Added word {japanese}')
         return "Word added successfully"
     except SQLAlchemyError as e:
+        # Properly aligned 'except' block
         return f"Error adding word: {e}"
+
 
 def get_words():
     try:

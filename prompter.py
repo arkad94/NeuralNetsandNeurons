@@ -5,24 +5,42 @@ from openai import OpenAI
 api_key = os.getenv("OPENAI_API_KEY")
 client = OpenAI(api_key=api_key)
 
-messages = [{"role": "system", "content": "You are a japanese language teacher"}]
+messages = [{"role": "system", "content": "You are a Japanese Teacher"}]
 
 def create_prompt(CMD, tag, SPINS):
     cmd_templates = {
-        "Word of The Day in Japanese": "Give 5 words in Japanese based on the tag given,tabulate them as Japanese word,Furigana,English word,example sentence in respective columns",
-        "A Story": "Give a story in Japanese according to tag, beginner level and also separately list the difficult words with English translation. Ensure this list begins with a '*' and Japanese word is separated from the English word with a ' * ', finally summarize the story in English as well."
-
+        "Word of The Day in Japanese": "Give 5 words in Japanese based on the tag given, tabulate them as Japanese word, Furigana, English word, example sentence in respective columns",
+        "A Story": "Give a story in Japanese according to tag, beginner level and also separately list the difficult words,list difficult Japanese words in a tabulated format as follows: 'Japanese Word, English Translation'. For example: 'にほんご, Japanese Language'",
+        # Add more CMDs and their templates here
     }
 
     prompt_template = cmd_templates.get(CMD, "Default template if CMD not found")
+    final_prompt = ""
+    if CMD in cmd_templates:
+        final_prompt += f"CMD: {CMD}"
 
-    # Combine your CMD, tag, and SPINS into a single instruction string
-    instruction = f"CMD: {CMD}, Tag: {tag}, SPINS: {SPINS}"
+    final_prompt += f", Tag: {tag}"
+    if SPINS.strip():
+        final_prompt += f", SPINS: {SPINS}"
 
-    # Modify the prompt to include a summary request
-    final_prompt = f"First, summarize the following instructions: {instruction}. Now, {prompt_template}."
+    final_prompt = f"First, summarize the following instructions: {final_prompt}. Now, {prompt_template}."
+    return final_prompt
+
+
+    # Add CMD to the prompt only if it's a valid key in cmd_templates
+    if CMD in cmd_templates:
+        final_prompt += f"CMD: {CMD}"
+
+    # Add Tag and SPINS to the prompt
+    final_prompt += f", Tag: {tag}"
+    if SPINS.strip():  # Include SPINS only if it contains content
+        final_prompt += f", SPINS: {SPINS}"
+
+    # Complete the prompt with a summary request and the selected template
+    final_prompt = f"First, summarize the following instructions: {final_prompt}. Now, {prompt_template}."
 
     return final_prompt
+
 
 
 def send_prompt_to_openai(CMD, tag, SPINS):
@@ -44,13 +62,10 @@ def extract_difficult_words(response):
     # This is a placeholder implementation and needs to be adapted based on the actual response format
     difficult_words = []
     for line in response.split('\n'):
-        #These defines what to pick from the response
-        if line.startswith('*'):
-        #This defines what  splits Japaneze and English words
-            parts = line.split(' * ')
-            if len(parts) == 2:
-                japanese, english = parts[0], parts[1]
-                difficult_words.append((japanese, english))
+        parts = line.strip().split(', ')
+        if len(parts) == 2:
+            japanese, english = parts
+            difficult_words.append((japanese, english))
     return difficult_words
 
 
