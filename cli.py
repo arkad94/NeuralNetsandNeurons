@@ -13,7 +13,7 @@ from app import app
 # Import database operation functions to add, retrieve, update, and delete users.
 from db_operations import (add_user, get_users, update_user, delete_user, add_word, get_words, update_word, delete_word
                            , add_tag, get_tags, update_tag, delete_tag) 
-from prompter import create_prompt
+from prompter import (create_prompt, send_prompt_to_openai)
 # Import tabulate to nicely format tables in the command line output.
 from prompt_toolkit.completion import WordCompleter
 from tabulate import tabulate
@@ -66,11 +66,18 @@ def clear_screen():
 
 def handle_prompter():
     session = PromptSession()
-    CMD = session.prompt(f"{Fore.BLUE}Enter CMD: {Style.RESET_ALL}", completer=WordCompleter(['command1', 'command2', 'command3']))
+    CMD = session.prompt(f"{Fore.BLUE}Enter CMD: {Style.RESET_ALL}")
     Tag = session.prompt(f"{Fore.BLUE}Enter Tag: {Style.RESET_ALL}")
     SPINS = session.prompt(f"{Fore.BLUE}Enter SPINS: {Style.RESET_ALL}")
 
-    prompt = create_prompt(CMD, Tag, SPINS)
+    # Generate the final prompt using the create_prompt function
+    final_prompt = create_prompt(CMD, Tag, SPINS)
+
+    # Call send_prompt_to_openai with the final prompt
+    response = send_prompt_to_openai(CMD, Tag, SPINS)
+    print(f"{Fore.YELLOW}Response from OpenAI: {response}{Style.RESET_ALL}")
+
+
     
 
    
