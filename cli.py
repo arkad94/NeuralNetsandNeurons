@@ -70,12 +70,16 @@ def handle_prompter():
     Tag = session.prompt(f"{Fore.BLUE}Enter Tag: {Style.RESET_ALL}")
     SPINS = session.prompt(f"{Fore.BLUE}Enter SPINS: {Style.RESET_ALL}")
 
-    # Generate the final prompt using the create_prompt function
-    final_prompt = create_prompt(CMD, Tag, SPINS)
-
-    # Call send_prompt_to_openai with the final prompt
-    response = send_prompt_to_openai(CMD, Tag, SPINS)
+    response, difficult_words = send_prompt_to_openai(CMD, Tag, SPINS)
     print(f"{Fore.YELLOW}Response from OpenAI: {response}{Style.RESET_ALL}")
+
+    if difficult_words:
+        with app.app_context():  # This is the added line
+            print("Adding difficult words to database...")
+            for japanese, english in difficult_words:
+                add_result = add_word(japanese.strip(), english.strip())
+                print(add_result)  # For debugging
+
 
 
     

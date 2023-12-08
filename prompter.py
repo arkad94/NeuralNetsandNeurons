@@ -10,8 +10,8 @@ messages = [{"role": "system", "content": "You are a japanese language teacher"}
 def create_prompt(CMD, tag, SPINS):
     cmd_templates = {
         "Word of The Day in Japanese": "Give 5 words in Japanese based on the tag given,tabulate them as Japanese word,Furigana,English word,example sentence in respective columns",
-        "A Story": "Give a story in Japanese according to tag, beginner level and also seperately list the difficult words in furigana, finally summarise the story in english as well",
-        # Add more CMDs and their templates here
+        "A Story": "Give a story in Japanese according to tag, beginner level and also separately list the difficult words with English translation. Ensure this list begins with a '*' and Japanese word is separated from the English word with a ' * ', finally summarize the story in English as well."
+
     }
 
     prompt_template = cmd_templates.get(CMD, "Default template if CMD not found")
@@ -33,6 +33,24 @@ def send_prompt_to_openai(CMD, tag, SPINS):
     chat_completion = client.chat.completions.create(
         model="gpt-3.5-turbo", messages=messages
     )
-    return chat_completion.choices[0].message.content
+    response = chat_completion.choices[0].message.content
+    difficult_words = extract_difficult_words(response)
+    return response, difficult_words  # Ensure only two values are returned
+
+
+
+def extract_difficult_words(response):
+    # Extract and return difficult words from the response
+    # This is a placeholder implementation and needs to be adapted based on the actual response format
+    difficult_words = []
+    for line in response.split('\n'):
+        #These defines what to pick from the response
+        if line.startswith('*'):
+        #This defines what  splits Japaneze and English words
+            parts = line.split(' * ')
+            if len(parts) == 2:
+                japanese, english = parts[0], parts[1]
+                difficult_words.append((japanese, english))
+    return difficult_words
 
 
