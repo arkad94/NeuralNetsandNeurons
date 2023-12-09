@@ -77,6 +77,17 @@ def home():
 app.jinja_env.cache = {}
 
 
+@app.route('/get_prompt_results', methods=['POST'])
+def get_prompt_results():
+    data = request.get_json()
+    CMD = data['CMD']
+    tag = data['tag']
+    SPINS = data['SPINS']
+    
+    # Call your existing function to get the response and difficult words
+    response, difficult_words = send_prompt_to_openai(CMD, tag, SPINS)
+    
+    return jsonify({'text_response': response, 'difficult_words': difficult_words})
 
 
 @app.route('/prompter', methods=['GET', 'POST'])
