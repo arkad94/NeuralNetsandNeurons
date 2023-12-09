@@ -1,74 +1,23 @@
-from flask import Flask, render_template, request, jsonify, redirect, url_for, session
+from flask import Flask, render_template, request, jsonify, redirect, url_for
 from models import db, User, Word
 from db_operations import add_user, get_users, update_user, delete_user, add_word, get_words, update_word, delete_word
 from prompter import send_prompt_to_openai 
-from authlib.integrations.flask_client import OAuth
-from six.moves.urllib.parse import urlencode
-from functools import wraps
-import os
-import json
 
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///jlo_ai.db'
 app.config['TEMPLATES_AUTO_RELOAD'] = True
-app.secret_key = os.environ.get('FLASK_SECRET_KEY', 'super-secret-key')  # Ideally set in environment variables
 db.init_app(app)
 
-oauth = OAuth(app)
-auth0 = oauth.register(
-    'auth0',
-    client_id='CXHOzgaYITT21HMk8PC2JYrobs8X9ZPQ',
-    client_secret='3jJgaJCIUASkh1e31vqRFt4TDVO7cFVDKKziZL0BOU1GvGmh8HeThVEPhgXRZecS',
-    api_base_url='dev-7pf6v064o4chkpcx.us.auth0.com',
-    access_token_url='dev-7pf6v064o4chkpcx.us.auth0.com/oauth/token',
-    authorize_url='dev-7pf6v064o4chkpcx.us.auth0.com/authorize',
-    client_kwargs={
-        'scope': 'openid profile email ',
-    },
-)
 
-# Decorator for requiring auth in routes
-def requires_auth(f):
-    @wraps(f)
-    def decorated(*args, **kwargs):
-        if 'profile' not in session:
-            # Redirect to Login page if user is not logged in
-            return redirect('/login')
-        return f(*args, **kwargs)
-    return decorated
+# Clear the Jinja2 cache
+app.jinja_env.cache = {}
+
 
 @app.route('/')
-def home():
-    # Home page can be accessible without authentication
+def index():
     return render_template('index.html')
 
-@app.route('/login')
-def login():
-    return auth0.authorize_redirect(redirect_uri=url_for('callback', _external=True))
-
-@app.route('/callback')
-def callback():
-    auth0.authorize_access_token()
-    resp = auth0.get('userinfo')
-    userinfo = resp.json()
-
-    session['jwt_payload'] = userinfo
-    session['profile'] = {
-        'user_id': userinfo['sub'],
-        'name': userinfo['name'],
-        'picture': userinfo['picture']
-    }
-    return redirect('/dashboard')
-
-@app.route('/logout')
-def logout():
-    session.clear()
-    params = {'returnTo': url_for('home', _external=True), 'client_id': 'YOUR_AUTH0_CLIENT_ID'}
-    return redirect(auth0.api_base_url + '/v2/logout?' + urlencode(params))
-
-
 @app.route('/prompter', methods=['GET', 'POST'])
-@requires_auth
 def prompter():
     if request.method == 'POST':
         # Get the form data
@@ -155,4 +104,3 @@ def create_db():
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=int(os.environ.get('PORT', 5000)), debug=True)
-
