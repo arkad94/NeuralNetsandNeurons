@@ -20,5 +20,4 @@ Thumbs.db
 *.csv
 *.json
 
-# Ignore the instance directory
-instance/
+
