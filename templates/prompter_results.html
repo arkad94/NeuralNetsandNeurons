@@ -1,0 +1,11 @@
+<!-- templates/prompter_results.html -->
+
+<h1>Response from OpenAI</h1>
+<p>{{ response }}</p>
+
+<h2>Difficult Words</h2>
+<ul>
+{% for word in difficult_words %}
+    <li>{{ word[0] }} - {{ word[1] }}</li>
+{% endfor %}
+</ul>

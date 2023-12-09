@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}JLO AI Application{% endblock %}</title>
+    <!-- Add links to CSS files here -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <header>
+        <!-- Navigation and other common header elements -->
+    </header>
+
+    <main>
+        {% block content %}
+        <!-- Main content will be inserted here by other templates -->
+        {% endblock %}
+    </main>
+
+    <footer>
+        <!-- Common footer content -->
+    </footer>
+
+    <!-- Add links to JavaScript files here -->
+    <script src="{{ url_for('static', filename='js/scripts.js') }}"></script>
+</body>
+</html>

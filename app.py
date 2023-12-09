@@ -1,191 +1,106 @@
-from flask import Flask, jsonify, request
-from models import db
-# Import functions from admin.py
-from db_operations import add_user, get_users, update_user, delete_user
+from flask import Flask, render_template, request, jsonify, redirect, url_for
+from models import db, User, Word
+from db_operations import add_user, get_users, update_user, delete_user, add_word, get_words, update_word, delete_word
+from prompter import send_prompt_to_openai 
 
-  
-                 
-
-# Set up a new Flask application.
 app = Flask(__name__)
-# Configure the application to use an SQLite database named jlo_ai.db.
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///jlo_ai.db'
-# Initialize the database, making it ready for use with our app.
+app.config['TEMPLATES_AUTO_RELOAD'] = True
 db.init_app(app)
 
-# Define the root ('/') route. This is the default page for our web app.
+
+# Clear the Jinja2 cache
+app.jinja_env.cache = {}
+
+
 @app.route('/')
 def index():
-    # This function simply returns a string to let us know the app is working.
-    return 'Flask is Working!'
+    return render_template('index.html')
 
-# User CRUD (Create, Read, Update, Delete) routes:
+@app.route('/prompter', methods=['GET', 'POST'])
+def prompter():
+    if request.method == 'POST':
+        # Get the form data
+        CMD = request.form.get('CMD')
+        tag = request.form.get('tag')
+        SPINS = request.form.get('SPINS')
+        
+        # Use the send_prompt_to_openai function to get the response and difficult words
+        response, difficult_words = send_prompt_to_openai(CMD, tag, SPINS)
+        
+        # Redirect to a new template with the results
+        return render_template('prompter_results.html', response=response, difficult_words=difficult_words)
+    
+    # If it's a GET request, just render the prompter form
+    return render_template('prompter_form.html')
+                           
 
-# Add a new user. The URL example shows how to test this route.
-@app.route('/add_user/<username>/<email>', methods=['POST'])
-def route_add_user(username, email):
-    add_user(username, email)  # Call the add_user function from admin.py.
-    return jsonify({'message': 'User added'})
-    # Example URL: POST http://localhost:5000/add_user/john/doe@example.com
+@app.route('/add_user', methods=['GET', 'POST'])
+def route_add_user():
+    if request.method == 'POST':
+        username = request.form['username']
+        email = request.form['email']
+        response = add_user(username, email)
+        return jsonify({'message': response})
+    return render_template('add_user.html')
 
-# Get a list of all users. The URL example shows how to access this data.
 @app.route('/users', methods=['GET'])
 def route_get_users():
-    users = get_users()  # Get all users from the database.
-    users_list = [{'id': user.id, 'username': user.username} for user in users]
-    return jsonify({'users': users_list})
-    # Example URL: GET http://localhost:5000/users
+    users = get_users()
+    return render_template('users.html', users=users)
 
-# Update a user's information. The URL example shows how to test this route.
-@app.route('/update_user/<int:user_id>', methods=['PUT'])
+@app.route('/update_user/<int:user_id>', methods=['GET', 'POST'])
 def route_update_user(user_id):
-    data = request.json  # Extract data from the request.
-    username = data.get('username')
-    email = data.get('email')
-    result = update_user(user_id, username, email)  # Update the user.
-    return jsonify({'message': 'User updated' if result else 'User not found'})
-    # Example URL: PUT http://localhost:5000/update_user/1
+    user = User.query.get(user_id)
+    if request.method == 'POST':
+        user.username = request.form['username']
+        user.email = request.form['email']
+        db.session.commit()
+        return redirect(url_for('route_get_users'))
+    return render_template('update_user.html', user=user)
 
-# Delete a user. The URL example shows how to test this route.
-@app.route('/delete_user/<int:user_id>', methods=['DELETE'])
+@app.route('/delete_user/<int:user_id>', methods=['POST'])
 def route_delete_user(user_id):
-    result = delete_user(user_id)  # Delete the user from the database.
-    return jsonify({'message': 'User deleted' if result else 'User not found'})
-    # Example URL: DELETE http://localhost:5000/delete_user/1
+    user = User.query.get(user_id)
+    db.session.delete(user)
+    db.session.commit()
+    return redirect(url_for('route_get_users'))
 
-# Word CRUD routes:
-
-# Add a new word. The URL example shows how to test this route.
-@app.route('/add_word', methods=['POST'])
+@app.route('/add_word', methods=['GET', 'POST'])
 def route_add_word():
-    data = request.json  # Extract data from the request.
-    japanese = data.get('japanese')
-    english = data.get('english')
-    add_word(japanese, english)  # Add the new word to the database.
-    return jsonify({'message': 'Word added'})
-    # Example URL: POST http://localhost:5000/add_word
+    if request.method == 'POST':
+        japanese = request.form['japanese']
+        english = request.form['english']
+        response = add_word(japanese, english)
+        return jsonify({'message': response})
+    return render_template('add_word.html')
 
-# Get a list of all words. The URL example shows how to access this data.
-@app.route('/words', methods=['GET'])
+@app.route('/get_words', methods=['GET'])
 def route_get_words():
-    words = get_words()  # Get all words from the database.
-    words_list = [{'id': word.id, 'japanese': word.japanese, 'english': word.english} for word in words]
-    return jsonify({'words': words_list})
-    # Example URL: GET http://localhost:5000/words
+    words = get_words()
+    return render_template('get_words.html', words=words)
 
-# Update a word's information. The URL example shows how to test this route.
-@app.route('/update_word/<int:word_id>', methods=['PUT'])
+@app.route('/update_word/<int:word_id>', methods=['GET', 'POST'])
 def route_update_word(word_id):
-    data = request.json  # Extract data from the request.
-    new_japanese = data.get('japanese')
-    new_english = data.get('english')
-    result = update_word(word_id, new_japanese, new_english)  # Update the word.
-    return jsonify({'message': 'Word updated' if result else 'Word not found'})
-    # Example URL: PUT http://localhost:5000/update_word/1
+    word = Word.query.get(word_id)
+    if request.method == 'POST':
+        word.japanese = request.form['japanese']
+        word.english = request.form['english']
+        db.session.commit()
+        return redirect(url_for('route_get_words'))
+    return render_template('update_word.html', word=word)
 
-# Delete a word. The URL example shows how to test this route.
-@app.route('/delete_word/<int:word_id>', methods=['DELETE'])
+@app.route('/delete_word/<int:word_id>', methods=['POST'])
 def route_delete_word(word_id):
-    result = delete_word(word_id)  # Delete the word from the database.
-    return jsonify({'message': 'Word deleted' if result else 'Word not found'})
-    # Example URL: DELETE http://localhost:5000/delete_word
-
-# Tag CRUD routes:
-
-# Add a new tag. The URL example shows how to test this route.
-@app.route('/add_tag', methods=['POST'])
-def route_add_tag():
-    data = request.json  # Extract data from the request.
-    name = data.get('name')
-    add_tag(name)  # Add the new tag to the database.
-    return jsonify({'message': 'Tag added'})
-    # Example URL: POST http://localhost:5000/add_tag
-
-# Get a list of all tags. The URL example shows how to access this data.
-@app.route('/tags', methods=['GET'])
-def route_get_tags():
-    tags = get_tags()  # Get all tags from the database.
-    tags_list = [{'id': tag.id, 'name': tag.name} for tag in tags]
-    return jsonify({'tags': tags_list})
-    # Example URL: GET http://localhost:5000/tags
-
-# Update a tag's name. The URL example shows how to test this route.
-@app.route('/update_tag/<int:tag_id>', methods=['PUT'])
-def route_update_tag(tag_id):
-    data = request.json  # Extract data from the request.
-    new_name = data.get('name')
-    result = update_tag(tag_id, new_name)  # Update the tag's name.
-    return jsonify({'message': 'Tag updated' if result else 'Tag not found'})
-    # Example URL: PUT http://localhost:5000/update_tag/1
-
-# Delete a tag. The URL example shows how to test this route.
-@app.route('/delete_tag/<int:tag_id>', methods=['DELETE'])
-def route_delete_tag(tag_id):
-    result = delete_tag(tag_id)  # Delete the tag from the database.
-    return jsonify({'message': 'Tag deleted' if result else 'Tag not found'})
-    # Example URL: DELETE http://localhost:5000/delete_tag/1
-
-#Delete Function for Changelog
-
-
-
-@app.route('/delete_change_log/<int:record_id>', methods=['DELETE'])
-def route_delete_change_log(record_id):
-    print(f"Attempting to delete ChangeLog with ID: {record_id}")
-    result = delete_change_log(record_id)
-    return jsonify({'message': 'ChangeLog entry deleted' if result else 'ChangeLog entry not found'})
-
-
-
-
-
-
-
- #RESET DATABASE ROUTE
-@app.route('/reset_database_data', methods=['POST'])
-def route_reset_database_data():
-    reset_database_data()
-    return jsonify({'message': 'Database data has been reset'})
-
-
-
-
-
-# Get Latest Report
-@app.route('/get_latest_report')
-def get_latest_report():
-    # If using the database
-    latest_report = Report.query.order_by(Report.created_at.desc()).first()
-    if latest_report:
-        return jsonify({"report": latest_report.content, "created_at": latest_report.created_at})
-
-
-
-
-@app.route('/delete_report/<int:report_id>', methods=['DELETE'])
-def route_delete_report(report_id):
-    result = delete_report(report_id)
-    return jsonify({'message': 'Report deleted' if result else 'Report not found'})
+    word = Word.query.get(word_id)
+    db.session.delete(word)
+    db.session.commit()
+    return redirect(url_for('route_get_words'))
 
 @app.cli.command('create_db')
 def create_db():
-    # Command to create all database tables. Only needs to be run once.
     db.create_all()
     print("Database tables created.")
 
-
- # Start the Flask application.
-# At the end of app.py, after defining routes and before running the app
 if __name__ == '__main__':
-   
-    from admin import scheduler  # Make sure to import the scheduler from admin.py
-    try:
-        scheduler.start()
-    except (KeyboardInterrupt, SystemExit):
-        pass
-        # Generate initial report
-    initial_report = generate_report()
-    
-    
     app.run(debug=True)
-    # Debug mode is enabled for development purposes.

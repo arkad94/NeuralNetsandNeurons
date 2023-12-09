@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+
+{% block title %}Add Word{% endblock %}
+
+{% block content %}
+    <h2>Add Word</h2>
+    <form method="POST" action="{{ url_for('route_add_word') }}">
+        <label for="japanese">Japanese:</label>
+        <input type="text" id="japanese" name="japanese" required><br>
+        <label for="english">English:</label>
+        <input type="text" id="english" name="english" required><br>
+        <button type="submit">Add Word</button>
+    </form>
+    <a href="{{ url_for('route_get_words') }}">Back to Word List</a>
+{% endblock %}

@@ -50,12 +50,6 @@ def delete_user(user_id):
     except SQLAlchemyError as e:
         return f"Error deleting user: {e}"
 
-# Word CRUD Operations
-
-
-        return f"Error adding word: {e}"
-# Implement similar functions for add_word, get_words, update_word, delete_word
-
 
 
 # Tag CRUD Operations
@@ -95,6 +89,7 @@ def update_word(word_id, new_japanese, new_english):
         return False
     except SQLAlchemyError as e:
         return f"Error updating word: {e}" 
+    
 def delete_word(word_id):
     word = Word.query.get(word_id)
     if word:
@@ -152,11 +147,6 @@ def generate_report():
     
     #Difficult words functionality \
     
-def add_word(japanese, english):
-    # Implementation to add a word to the database
-    new_word = Word(japanese=japanese, english=english)
-    db.session.add(new_word)
-    db.session.commit()
 
 
 # Continue to define other necessary functions (like reset_database_data)
