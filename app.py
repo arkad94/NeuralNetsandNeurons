@@ -23,7 +23,7 @@ auth0 = oauth.register(
     access_token_url='dev-7pf6v064o4chkpcx.us.auth0.com/oauth/token',
     authorize_url='dev-7pf6v064o4chkpcx.us.auth0.com/authorize',
     client_kwargs={
-        'scope': 'sahnivyom@gmail.com ',
+        'scope': 'openid profile email ',
     },
 )
 
