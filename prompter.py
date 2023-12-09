@@ -1,5 +1,9 @@
 import os
-import openai
+import json
+import requests
+from openai import OpenAI
+
+client = OpenAI()
 
 # Initialize OpenAI client with your API key
 api_key = os.getenv("OPENAI_API_KEY")
@@ -28,20 +32,31 @@ def create_prompt(CMD, tag, SPINS):
 def send_prompt_to_openai(CMD, tag, SPINS):
     final_prompt, valid_cmd = create_prompt(CMD, tag, SPINS)
     if valid_cmd:
-        messages = [{"role": "user", "content": final_prompt}]
+        headers = {
+            "Authorization": f"Bearer {api_key}",
+            "Content-Type": "application/json"
+        }
 
-        # Use the openai.Completion.create method
-        response = openai.Completion.create(
-            model="gpt-3.5-turbo", prompt=final_prompt, max_tokens=150
-        )
+        data = {
+            "model": "gpt-3.5-turbo",
+            "messages": [{"role": "user", "content": final_prompt}]
+        }
 
-        # Extract the text from the response
-        text_response = response.choices[0].text.strip()
+        response = requests.post("https://api.openai.com/v1/chat/completions", 
+                                 headers=headers, 
+                                 data=json.dumps(data))
 
-        difficult_words = extract_difficult_words(text_response)
-        return text_response, difficult_words
+        if response.status_code == 200:
+            response_data = response.json()
+            text_response = response_data['choices'][0]['message']['content'].strip()
+            difficult_words = extract_difficult_words(text_response)
+            return text_response, difficult_words
+        else:
+            print("Error:", response.status_code, response.text)
+            return "", []
 
     return "", []
+
 
 
 def extract_difficult_words(response):
