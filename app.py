@@ -1,27 +1,25 @@
-from flask import Flask, render_template, request, jsonify, redirect, url_for, session, redirect
+from flask import Flask, render_template, request, session, redirect, url_for, jsonify
+from flask_socketio import SocketIO  # Import for Flask-SocketIO
 from models import db, User, Word
 from db_operations import add_user, get_users, update_user, delete_user, add_word, get_words, update_word, delete_word
-from prompter import send_prompt_to_openai 
+from prompter import send_prompt_to_openai
 from authlib.integrations.flask_client import OAuth
-from six.moves.urllib.parse import urlencode
-from functools import wraps
-import os
-from os import environ as env
-import json
+from dotenv import load_dotenv, find_dotenv
 from urllib.parse import quote_plus, urlencode
-from authlib.integrations.flask_client import OAuth
-from dotenv import find_dotenv, load_dotenv
+import os
+import json
 
 ENV_FILE = find_dotenv()
 if ENV_FILE:
     load_dotenv(ENV_FILE)
 
-
 app = Flask(__name__)
-app.secret_key = env.get("APP_SECRET_KEY")
+app.config['SECRET_KEY'] = os.getenv("APP_SECRET_KEY")
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///jlo_ai.db'
 app.config['TEMPLATES_AUTO_RELOAD'] = True
-db.init_app(app)
+
+db = SQLAlchemy(app)  # Initialize SQLAlchemy with the Flask app
+socketio = SocketIO(app)  # Initialize SocketIO with the Flask app
 
 oauth = OAuth(app)
 
@@ -76,24 +74,29 @@ def home():
 # Clear the Jinja2 cache
 app.jinja_env.cache = {}
 
-
-@app.route('/get_prompt_results', methods=['POST'])
-def get_prompt_results():
-    data = request.get_json()
+@socketio.on('send_prompt')
+def handle_send_prompt(data):
     CMD = data['CMD']
     tag = data['tag']
     SPINS = data['SPINS']
-    
-    # Call your existing function to get the response and difficult words
+
     response, difficult_words = send_prompt_to_openai(CMD, tag, SPINS)
-    
-    return jsonify({'text_response': response, 'difficult_words': difficult_words})
+    emit('prompt_response', {'text_response': response, 'difficult_words': difficult_words})
 
 
 @app.route('/prompter', methods=['GET'])
 def prompter():
     # Render the prompter form
     return render_template('prompter_form.html')
+
+@socketio.on('send_prompt')
+def handle_send_prompt(data):
+    CMD = data['CMD']
+    tag = data['tag']
+    SPINS = data['SPINS']
+
+    response, difficult_words = send_prompt_to_openai(CMD, tag, SPINS)
+    emit('prompt_response', {'text_response': response, 'difficult_words': difficult_words})
 
     
  
