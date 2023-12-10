@@ -2,7 +2,7 @@ from gevent import monkey
 monkey.patch_all()
 import os
 from flask import Flask, render_template, request, session, redirect, url_for, jsonify
-from flask_socketio import SocketIO
+from flask_socketio import SocketIO, emit
 from flask_sqlalchemy import SQLAlchemy
 from models import db, User, Word
 from db_operations import add_user, get_users, update_user, delete_user, add_word, get_words, update_word, delete_word
