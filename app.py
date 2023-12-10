@@ -90,22 +90,13 @@ def get_prompt_results():
     return jsonify({'text_response': response, 'difficult_words': difficult_words})
 
 
-@app.route('/prompter', methods=['GET', 'POST'])
+@app.route('/prompter', methods=['GET'])
 def prompter():
-    if request.method == 'POST':
-        # Get the form data
-        CMD = request.form.get('CMD')
-        tag = request.form.get('tag')
-        SPINS = request.form.get('SPINS')
-        
-        # Use the send_prompt_to_openai function to get the response and difficult words
-        response, difficult_words = send_prompt_to_openai(CMD, tag, SPINS)
-        
-        # Redirect to a new template with the results
-        return render_template('prompter_results.html', response=response, difficult_words=difficult_words)
-    
-    # If it's a GET request, just render the prompter form
+    # Render the prompter form
     return render_template('prompter_form.html')
+
+    
+ 
                            
 
 @app.route('/add_user', methods=['GET', 'POST'])
