@@ -23,6 +23,8 @@ app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///jlo_ai.db'
 app.config['TEMPLATES_AUTO_RELOAD'] = True
 socketio = SocketIO(app, async_mode='gevent')
 
+db.init_app(app)
+
 
 # Setup OAuth
 oauth = OAuth(app)
