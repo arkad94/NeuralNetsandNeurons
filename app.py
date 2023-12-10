@@ -173,5 +173,8 @@ if __name__ == '__main__':
     from gevent.pywsgi import WSGIServer
     from geventwebsocket.handler import WebSocketHandler
 
-    http_server = WSGIServer(('', 5000), app, handler_class=WebSocketHandler)
+    # Get port number from the environment variable (Heroku sets it), or set to 5000
+    port = int(os.environ.get('PORT', 5000))
+
+    http_server = WSGIServer(('', port), app, handler_class=WebSocketHandler)
     http_server.serve_forever()
