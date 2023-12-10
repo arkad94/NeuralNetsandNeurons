@@ -4,7 +4,6 @@ import os
 from flask import Flask, render_template, request, session, redirect, url_for, jsonify
 from flask_socketio import SocketIO, emit
 from dbextension import db
-from flask_sqlalchemy import SQLAlchemy
 from db_operations import add_user, get_users, update_user, delete_user, add_word, get_words, update_word, delete_word
 from prompter import send_prompt_to_openai
 from models import  User, Word
