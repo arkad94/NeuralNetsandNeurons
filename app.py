@@ -1,38 +1,36 @@
+import os
 from flask import Flask, render_template, request, session, redirect, url_for, jsonify
-from flask_socketio import SocketIO  # Import for Flask-SocketIO
+from flask_socketio import SocketIO
+from flask_sqlalchemy import SQLAlchemy
 from models import db, User, Word
 from db_operations import add_user, get_users, update_user, delete_user, add_word, get_words, update_word, delete_word
 from prompter import send_prompt_to_openai
 from authlib.integrations.flask_client import OAuth
 from dotenv import load_dotenv, find_dotenv
-from urllib.parse import quote_plus, urlencode
-import os
 import json
 
+# Load environment variables
 ENV_FILE = find_dotenv()
 if ENV_FILE:
     load_dotenv(ENV_FILE)
 
+# Initialize Flask and its extensions
 app = Flask(__name__)
-app.config['SECRET_KEY'] = os.getenv("APP_SECRET_KEY")
+app.config['SECRET_KEY'] = os.environ.get("APP_SECRET_KEY")
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///jlo_ai.db'
 app.config['TEMPLATES_AUTO_RELOAD'] = True
+db = SQLAlchemy(app)
+socketio = SocketIO(app)
 
-db = SQLAlchemy(app)  # Initialize SQLAlchemy with the Flask app
-socketio = SocketIO(app)  # Initialize SocketIO with the Flask app
-
+# Setup OAuth
 oauth = OAuth(app)
-
 oauth.register(
     "auth0",
-    client_id=env.get("AUTH0_CLIENT_ID"),
-    client_secret=env.get("AUTH0_CLIENT_SECRET"),
-    client_kwargs={
-        "scope": "openid profile email",
-    },
-    server_metadata_url=f'https://{env.get("AUTH0_DOMAIN")}/.well-known/openid-configuration'
+    client_id=os.environ.get("AUTH0_CLIENT_ID"),
+    client_secret=os.environ.get("AUTH0_CLIENT_SECRET"),
+    client_kwargs={"scope": "openid profile email"},
+    server_metadata_url=f'https://{os.environ.get("AUTH0_DOMAIN")}/.well-known/openid-configuration'
 )
-
 
 @app.route("/login")
 def login():
@@ -170,4 +168,4 @@ def create_db():
     print("Database tables created.")
 
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=int(os.environ.get('PORT', 5000)), debug=True)
+    socketio.run(app, host='0.0.0.0', port=int(os.environ.get('PORT', 5000)), debug=True)
