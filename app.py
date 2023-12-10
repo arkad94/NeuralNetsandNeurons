@@ -3,9 +3,11 @@ monkey.patch_all()
 import os
 from flask import Flask, render_template, request, session, redirect, url_for, jsonify
 from flask_socketio import SocketIO, emit
+from dbextension import db
 from flask_sqlalchemy import SQLAlchemy
 from db_operations import add_user, get_users, update_user, delete_user, add_word, get_words, update_word, delete_word
 from prompter import send_prompt_to_openai
+from models import  User, Word
 from authlib.integrations.flask_client import OAuth
 from dotenv import load_dotenv, find_dotenv
 import json
@@ -20,10 +22,8 @@ app = Flask(__name__)
 app.config['SECRET_KEY'] = os.environ.get("APP_SECRET_KEY")
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///jlo_ai.db'
 app.config['TEMPLATES_AUTO_RELOAD'] = True
-db = SQLAlchemy(app)
 socketio = SocketIO(app, async_mode='gevent')
 
-from models import db, User, Word
 
 # Setup OAuth
 oauth = OAuth(app)
