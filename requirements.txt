@@ -15,7 +15,9 @@ colorama==0.4.6
 cryptography==41.0.7
 distro==1.8.0
 dnspython==2.4.2
-eventlet==0.33.3
+gevent==23.9.1
+gevent-websocket==0.10.1
+flask-socketio
 Flask==3.0.0
 Flask-SocketIO==5.3.6
 Flask-SQLAlchemy==3.1.1
