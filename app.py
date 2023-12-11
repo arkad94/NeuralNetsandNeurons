@@ -81,15 +81,6 @@ def home():
 # Clear the Jinja2 cache
 app.jinja_env.cache = {}
 
-@socketio.on('send_prompt')
-def handle_send_prompt(data):
-    CMD = data['CMD']
-    tag = data['tag']
-    SPINS = data['SPINS']
-
-    response, difficult_words = send_prompt_to_openai(CMD, tag, SPINS)
-    emit('prompt_response', {'text_response': response, 'difficult_words': difficult_words})
-
 
 @app.route('/prompter', methods=['GET'])
 def prompter():
@@ -116,10 +107,6 @@ def handle_send_prompt(data):
     emit('stream_end', {'message': 'Completion received'})
 
 
-
-    
- 
-                           
 @app.route('/add_user', methods=['GET', 'POST'])
 def route_add_user():
     if request.method == 'POST':

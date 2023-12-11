@@ -55,18 +55,24 @@ def send_prompt_to_openai(CMD, tag, SPINS, stream=False):
                 difficult_words = extract_difficult_words(text_response)
                 return text_response, difficult_words
             else:
-                # Handle streamed responses here
-                for line in response.iter_lines():
-                    if line:
-                        streamed_response = json.loads(line.decode('utf-8'))
-                        if 'choices' in streamed_response and 'delta' in streamed_response['choices'][0]:
-                            delta_content = streamed_response['choices'][0]['delta'].get('content', '')
-                            yield delta_content  # Yield the chunk for streaming
+                # Handling for streamed responses
+                try:
+                    for line in response.iter_lines():
+                        if line:
+                            print("Received line:", line.decode('utf-8'))  # Debugging statement
+                            streamed_response = json.loads(line.decode('utf-8'))
+                            if 'choices' in streamed_response and 'delta' in streamed_response['choices'][0]:
+                                delta_content = streamed_response['choices'][0]['delta'].get('content', '')
+                                yield delta_content  # Yield the chunk for streaming
+                except json.JSONDecodeError as e:
+                    print("JSON decoding failed. The line received was not valid JSON:", line)
+                    print("Error message:", str(e))
         else:
             print("Error:", response.status_code, response.text)
             return "", []
 
     return "", []
+
 
 
 
