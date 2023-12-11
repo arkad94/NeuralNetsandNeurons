@@ -13,7 +13,7 @@ api_key = os.getenv("OPENAI_API_KEY")
 def create_prompt(CMD, tag, SPINS):
     cmd_templates = {
         "Word of The Day in Japanese": "Give 5 words in Japanese based on the tag given, Make sure you tabulate them as Japanese word, Furigana, English word, and example sentence in respective columns",
-        "A Story": "Write a Japanese story in Japanese, with a summary in English following Japanese text separately listing difficult Japanese words used in the story in a tabulated format exactly as follows, no deviations tolerated: Japanese Word| English Translation, don't use brackets or empty space anywhere in your output",
+        "A Story": "Write a Japanese story in Japanese, followed with a summary in English and in the end Japanese text separately listing difficult Japanese words and their english translations. Japanese Story has heading as title, the english summary which follows the Japanese story has title English Summary and Difficult words are titled accordingly devation from the format would be harmful",
         # Add more CMDs and their templates here
     }
 
