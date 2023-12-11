@@ -29,7 +29,7 @@ def create_prompt(CMD, tag, SPINS):
     return final_prompt, CMD in cmd_templates
 
 
-def send_prompt_to_openai(CMD, tag, SPINS):
+def send_prompt_to_openai(CMD, tag, SPINS, stream=False):
     final_prompt, valid_cmd = create_prompt(CMD, tag, SPINS)
     if valid_cmd:
         headers = {
@@ -39,7 +39,8 @@ def send_prompt_to_openai(CMD, tag, SPINS):
 
         data = {
             "model": "gpt-3.5-turbo",
-            "messages": [{"role": "user", "content": final_prompt}]
+            "messages": [{"role": "user", "content": final_prompt}],
+            "stream": stream  # Enable streaming if required
         }
 
         response = requests.post("https://api.openai.com/v1/chat/completions", 
@@ -47,15 +48,26 @@ def send_prompt_to_openai(CMD, tag, SPINS):
                                  data=json.dumps(data))
 
         if response.status_code == 200:
-            response_data = response.json()
-            text_response = response_data['choices'][0]['message']['content'].strip()
-            difficult_words = extract_difficult_words(text_response)
-            return text_response, difficult_words
+            if not stream:
+                # For non-streaming responses
+                response_data = response.json()
+                text_response = response_data['choices'][0]['message']['content'].strip()
+                difficult_words = extract_difficult_words(text_response)
+                return text_response, difficult_words
+            else:
+                # Handle streamed responses here
+                for line in response.iter_lines():
+                    if line:
+                        streamed_response = json.loads(line.decode('utf-8'))
+                        if 'choices' in streamed_response and 'delta' in streamed_response['choices'][0]:
+                            delta_content = streamed_response['choices'][0]['delta'].get('content', '')
+                            yield delta_content  # Yield the chunk for streaming
         else:
             print("Error:", response.status_code, response.text)
             return "", []
 
     return "", []
+
 
 
 

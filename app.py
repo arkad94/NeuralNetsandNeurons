@@ -105,26 +105,21 @@ def handle_send_prompt(data):
     # Emit a message that the request is being processed
     emit('update', {'message': 'Processing your request...'})
 
-    # If your send_prompt_to_openai function can yield partial responses,
-    # you should iterate over these responses and emit them. 
-    # For example:
-    # for partial_response in send_prompt_to_openai(CMD, tag, SPINS):
-    #     emit('partial_prompt_response', {'text_response': partial_response})
+    # Stream the prompt to OpenAI and iterate over the responses
+    for response in send_prompt_to_openai(CMD, tag, SPINS, stream=True):
+        # Check if there is content in the delta field and emit it
+        if 'delta' in response['choices'][0]:
+            delta_content = response['choices'][0]['delta'].get('content', '')
+            emit('text_chunk', {'chunk': delta_content})
 
-    # If it only returns a complete response, you emit the response after processing
-    response, difficult_words = send_prompt_to_openai(CMD, tag, SPINS)
+    # Emit a message indicating the end of the stream
+    emit('stream_end', {'message': 'Completion received'})
 
-    # Emit a message that the request processing is almost done
-    emit('update', {'message': 'Almost done...'})
-
-    # Emit the final response
-    emit('prompt_response', {'text_response': response, 'difficult_words': difficult_words})
 
 
     
  
                            
-
 @app.route('/add_user', methods=['GET', 'POST'])
 def route_add_user():
     if request.method == 'POST':

@@ -35,11 +35,16 @@
             socket.emit('send_prompt', {CMD: CMD, tag: tag, SPINS: SPINS});
         }
     
+        socket.on('update', function(data) {
+            $("#results").append("<p>" + data.message + "</p>"); // Append update messages
+        });
+    
         socket.on('text_chunk', function(data) {
             $("#results").append(data.chunk); // Append each chunk of text
         });
     
-        socket.on('stream_end', function() {
-            // Optional: Do something when streaming ends
+        socket.on('stream_end', function(data) {
+            $("#results").append("<p>" + data.message + "</p>"); // Append the end message
         });
     </script>
+    
