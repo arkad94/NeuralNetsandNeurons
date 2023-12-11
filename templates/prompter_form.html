@@ -26,23 +26,20 @@
 
     <script>
         var socket = io();
-
+    
         function sendPromptData() {
             var CMD = $("#CMD").val();
             var tag = $("#tag").val();
             var SPINS = $("#SPINS").val();
-
+            $("#results").html(""); // Clear previous results
             socket.emit('send_prompt', {CMD: CMD, tag: tag, SPINS: SPINS});
         }
-
-        socket.on('prompt_response', function(data) {
-            var resultHtml = "<h1>Response from OpenAI</h1><p>" + data.text_response + "</p>";
-            resultHtml += "<h2>Difficult Words</h2><ul>";
-            data.difficult_words.forEach(function(word) {
-                resultHtml += "<li>" + word[0] + " - " + word[1] + "</li>";
-            });
-            resultHtml += "</ul>";
-            $("#results").html(resultHtml);
+    
+        socket.on('text_chunk', function(data) {
+            $("#results").append(data.chunk); // Append each chunk of text
+        });
+    
+        socket.on('stream_end', function() {
+            // Optional: Do something when streaming ends
         });
     </script>
-</body>
