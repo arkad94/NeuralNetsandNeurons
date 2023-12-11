@@ -45,8 +45,11 @@ def login():
 @app.route("/callback", methods=["GET", "POST"])
 def callback():
     token = oauth.auth0.authorize_access_token()
-    session["user"] = token
+    resp = oauth.auth0.get('userinfo')
+    userinfo = resp.json()
+    session['user'] = userinfo
     return redirect("/")
+
 
 @app.route("/logout")
 def logout():
