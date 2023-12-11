@@ -67,15 +67,27 @@ def send_prompt_to_openai(CMD, tag, SPINS, stream=False):
 
         if response.status_code == 200 and stream:
             full_text = ""
-            for line in response.iter_lines():
-                if line:
-                    line_str = line.decode('utf-8').strip()
-                    if line_str.startswith('data: '):
-                        json_str = line_str[6:]  # Strip off 'data: '
-                        streamed_response = json.loads(json_str)
-                        if 'choices' in streamed_response and 'delta' in streamed_response['choices'][0]:
-                            delta_content = streamed_response['choices'][0]['delta'].get('content', '')
-                            full_text += delta_content
+            try:
+                for line in response.iter_lines():
+                    if line:
+                        line_str = line.decode('utf-8').strip()
+                        print("Received line:", line_str)  # Debugging statement
+                        if line_str.startswith('data: '):
+                            json_str = line_str[6:]  # Strip off 'data: '
+                            print("JSON string to decode:", json_str)  # Debugging statement
+                            try:
+                                streamed_response = json.loads(json_str)
+                                if 'choices' in streamed_response and 'delta' in streamed_response['choices'][0]:
+                                    delta_content = streamed_response['choices'][0]['delta'].get('content', '')
+                                    full_text += delta_content
+                            except json.JSONDecodeError as e:
+                                print("Error in decoding JSON after stripping 'data: ':", e)
+                                print("Problematic JSON string:", json_str)
+                        else:
+                            print("Line did not start with 'data: '", line_str)
+            except json.JSONDecodeError as e:
+                print("JSON decoding failed. The line received was not valid JSON:", line_str)
+                print("Error message:", str(e))
 
             japanese_story, english_summary, difficult_words = process_text(full_text)
             return {
@@ -94,6 +106,7 @@ def send_prompt_to_openai(CMD, tag, SPINS, stream=False):
             return "", []
 
     return "", []
+
 
 
 
