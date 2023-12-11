@@ -61,15 +61,15 @@ def send_prompt_to_openai(CMD, tag, SPINS, stream=False):
         }
         response = requests.post("https://api.openai.com/v1/chat/completions", 
                                  headers=headers, data=json.dumps(data))
+
         if response.status_code == 200 and stream:
             full_text = ""
             for line in response.iter_lines():
                 if line:
                     line_str = line.decode('utf-8').strip()
                     if line_str.startswith('data: '):
-                        json_str = line_str[6:]
-                        print("JSON string to decode:", json_str)
-                        if json_str:
+                        json_str = line_str[6:]  # Strip off 'data: '
+                        if json_str != "[DONE]":  # Ignore the DONE marker
                             try:
                                 streamed_response = json.loads(json_str)
                                 if 'choices' in streamed_response and 'delta' in streamed_response['choices'][0]:
@@ -77,7 +77,9 @@ def send_prompt_to_openai(CMD, tag, SPINS, stream=False):
                                     full_text += delta_content
                             except json.JSONDecodeError as e:
                                 print("Error decoding JSON:", e)
-                                print("Problematic JSON string:", json_str)
+                        else:
+                            print("Stream end marker received.")
+                            break  # Exit the loop if DONE marker is received
                     else:
                         print("Line did not start with 'data: '", line_str)
             japanese_story, english_summary, difficult_words = process_text(full_text)
@@ -86,14 +88,17 @@ def send_prompt_to_openai(CMD, tag, SPINS, stream=False):
                 "english_summary": english_summary,
                 "difficult_words": difficult_words
             }
+
         elif response.status_code == 200 and not stream:
             response_data = response.json()
             text_response = response_data['choices'][0]['message']['content'].strip()
             difficult_words = extract_difficult_words(text_response)
             return text_response, difficult_words
+
         else:
             print("Error:", response.status_code, response.text)
             return "", []
+
     else:
         return "", []
 
