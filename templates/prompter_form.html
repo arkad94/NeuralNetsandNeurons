@@ -22,6 +22,10 @@
         <input type="button" value="Submit" onclick="sendPromptData()">
     </form>
 
+    <!-- Divs for displaying stories -->
+    <div id="japaneseStory"></div>
+    <div id="englishSummary"></div>
+
     <div id="results"></div>
 
     <script>
@@ -31,20 +35,44 @@
             var CMD = $("#CMD").val();
             var tag = $("#tag").val();
             var SPINS = $("#SPINS").val();
-            $("#results").html(""); // Clear previous results
+            $("#japaneseStory").html(""); // Clear previous Japanese story
+            $("#englishSummary").html(""); // Clear previous English summary
             socket.emit('send_prompt', {CMD: CMD, tag: tag, SPINS: SPINS});
         }
-    
+
+        // Function to check if a string contains Japanese characters
+        function containsJapanese(text) {
+            return /[\u3000-\u303f\u3040-\u309f\u30a0-\u30ff\u3400-\u4dbf\u4e00-\u9fff\uf900-\ufaff]/.test(text);
+        }
+
+        // Function to display Japanese story
+        function displayJapaneseStory(content) {
+            if (containsJapanese(content)) {
+                $("#japaneseStory").append(content);
+            }
+        }
+
+        // Function to display English summary
+        function displayEnglishSummary(content) {
+            if (!containsJapanese(content)) {
+                $("#englishSummary").append(content);
+            }
+        }
+
+        socket.on('text_chunk', function(data) {
+            var content = data.chunk;
+            displayJapaneseStory(content);
+            displayEnglishSummary(content);
+        });
+
         socket.on('update', function(data) {
             $("#results").append("<p>" + data.message + "</p>"); // Append update messages
         });
-    
-        socket.on('text_chunk', function(data) {
-            $("#results").append(data.chunk); // Append each chunk of text
-        });
-    
+
         socket.on('stream_end', function(data) {
             $("#results").append("<p>" + data.message + "</p>"); // Append the end message
         });
     </script>
+</body>
+
     
