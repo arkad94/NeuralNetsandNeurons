@@ -59,13 +59,22 @@ def send_prompt_to_openai(CMD, tag, SPINS, stream=False):
                 try:
                     for line in response.iter_lines():
                         if line:
-                            print("Received line:", line.decode('utf-8'))  # Debugging statement
-                            streamed_response = json.loads(line.decode('utf-8'))
-                            if 'choices' in streamed_response and 'delta' in streamed_response['choices'][0]:
-                                delta_content = streamed_response['choices'][0]['delta'].get('content', '')
-                                yield delta_content  # Yield the chunk for streaming
+                            line_str = line.decode('utf-8').strip()
+                            print("Received line:", line_str)  # Debugging statement
+                            # Check if the line starts with 'data: '
+                            if line_str.startswith('data: '):
+                                json_str = line_str[6:]  # Strip off 'data: ' to get the JSON part
+                                try:
+                                    streamed_response = json.loads(json_str)
+                                    if 'choices' in streamed_response and 'delta' in streamed_response['choices'][0]:
+                                        delta_content = streamed_response['choices'][0]['delta'].get('content', '')
+                                        yield delta_content  # Yield the chunk for streaming
+                                except json.JSONDecodeError as e:
+                                    print("Error in decoding JSON after stripping 'data: ':", e)
+                            else:
+                                print("Line did not start with 'data: '", line_str)
                 except json.JSONDecodeError as e:
-                    print("JSON decoding failed. The line received was not valid JSON:", line)
+                    print("JSON decoding failed. The line received was not valid JSON:", line_str)
                     print("Error message:", str(e))
         else:
             print("Error:", response.status_code, response.text)
