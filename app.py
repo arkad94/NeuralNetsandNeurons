@@ -87,6 +87,10 @@ def prompter():
     # Render the prompter form
     return render_template('prompter_form.html')
 
+from flask_socketio import emit
+
+# Existing imports and setup...
+
 @socketio.on('send_prompt')
 def handle_send_prompt(data):
     CMD = data['CMD']
@@ -96,13 +100,15 @@ def handle_send_prompt(data):
     # Emit a message that the request is being processed
     emit('update', {'message': 'Processing your request...'})
 
-    # Stream the prompt to OpenAI and iterate over the responses
-    for delta_content in send_prompt_to_openai(CMD, tag, SPINS, stream=True):
-        # Emit each chunk of text
-        emit('text_chunk', {'chunk': delta_content})
+    # Process the prompt with streaming
+    processed_data = send_prompt_to_openai(CMD, tag, SPINS, stream=True)
+
+    # After streaming ends, emit the processed data
+    emit('prompt_response', processed_data)
 
     # Emit a message indicating the end of the stream
     emit('stream_end', {'message': 'Completion received'})
+
 
 
 
