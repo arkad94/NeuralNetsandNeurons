@@ -97,14 +97,13 @@ def handle_send_prompt(data):
     emit('update', {'message': 'Processing your request...'})
 
     # Stream the prompt to OpenAI and iterate over the responses
-    for response in send_prompt_to_openai(CMD, tag, SPINS, stream=True):
-        # Check if there is content in the delta field and emit it
-        if 'delta' in response['choices'][0]:
-            delta_content = response['choices'][0]['delta'].get('content', '')
-            emit('text_chunk', {'chunk': delta_content})
+    for delta_content in send_prompt_to_openai(CMD, tag, SPINS, stream=True):
+        # Emit each chunk of text
+        emit('text_chunk', {'chunk': delta_content})
 
     # Emit a message indicating the end of the stream
     emit('stream_end', {'message': 'Completion received'})
+
 
 
 @app.route('/add_user', methods=['GET', 'POST'])
