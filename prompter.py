@@ -1,6 +1,7 @@
 import os
 import json
 import requests
+import re
 from openai import OpenAI
 
 client = OpenAI()
@@ -29,6 +30,23 @@ def create_prompt(CMD, tag, SPINS):
     return final_prompt, CMD in cmd_templates
 
 
+def process_text(text):
+    # Regular expression patterns
+    japanese_pattern = r'[\u3000-\u303F\u3040-\u309F\u30A0-\u30FF\u3400-\u4DBF\u4E00-\u9FFF\uF900-\uFAFF]+'
+    english_pattern = r'[A-Za-z0-9\s,.;\'"-]+'
+    
+    # Extract Japanese and English text
+    japanese_story = ' '.join(re.findall(japanese_pattern, text))
+    english_summary = ' '.join(re.findall(english_pattern, text))
+
+    # Extract difficult words
+    difficult_words_pattern = r'([^\|]+)\|([^\|]+)'
+    difficult_words = re.findall(difficult_words_pattern, text)
+    formatted_difficult_words = [{'japanese': dw[0].strip(), 'english': dw[1].strip()} for dw in difficult_words]
+
+    return japanese_story, english_summary, formatted_difficult_words
+
+
 def send_prompt_to_openai(CMD, tag, SPINS, stream=False):
     final_prompt, valid_cmd = create_prompt(CMD, tag, SPINS)
     if valid_cmd:
@@ -47,41 +65,35 @@ def send_prompt_to_openai(CMD, tag, SPINS, stream=False):
                                  headers=headers, 
                                  data=json.dumps(data))
 
-        if response.status_code == 200:
-            if not stream:
-                # For non-streaming responses
-                response_data = response.json()
-                text_response = response_data['choices'][0]['message']['content'].strip()
-                difficult_words = extract_difficult_words(text_response)
-                return text_response, difficult_words
-            else:
-                # Handling for streamed responses
-                try:
-                    for line in response.iter_lines():
-                        if line:
-                            line_str = line.decode('utf-8').strip()
-                            print("Received line:", line_str)  # Debugging statement
-                            # Check if the line starts with 'data: '
-                            if line_str.startswith('data: '):
-                                json_str = line_str[6:]  # Strip off 'data: ' to get the JSON part
-                                try:
-                                    streamed_response = json.loads(json_str)
-                                    if 'choices' in streamed_response and 'delta' in streamed_response['choices'][0]:
-                                        delta_content = streamed_response['choices'][0]['delta'].get('content', '')
-                                        yield delta_content  # Yield the chunk for streaming
-                                except json.JSONDecodeError as e:
-                                    print("Error in decoding JSON after stripping 'data: ':", e)
-                            else:
-                                print("Line did not start with 'data: '", line_str)
-                except json.JSONDecodeError as e:
-                    print("JSON decoding failed. The line received was not valid JSON:", line_str)
-                    print("Error message:", str(e))
+        if response.status_code == 200 and stream:
+            full_text = ""
+            for line in response.iter_lines():
+                if line:
+                    line_str = line.decode('utf-8').strip()
+                    if line_str.startswith('data: '):
+                        json_str = line_str[6:]  # Strip off 'data: '
+                        streamed_response = json.loads(json_str)
+                        if 'choices' in streamed_response and 'delta' in streamed_response['choices'][0]:
+                            delta_content = streamed_response['choices'][0]['delta'].get('content', '')
+                            full_text += delta_content
+
+            japanese_story, english_summary, difficult_words = process_text(full_text)
+            return {
+                "japanese_story": japanese_story,
+                "english_summary": english_summary,
+                "difficult_words": difficult_words
+            }
+        elif response.status_code == 200 and not stream:
+            # Handling for non-streaming responses
+            response_data = response.json()
+            text_response = response_data['choices'][0]['message']['content'].strip()
+            difficult_words = extract_difficult_words(text_response)
+            return text_response, difficult_words
         else:
             print("Error:", response.status_code, response.text)
             return "", []
 
     return "", []
-
 
 
 

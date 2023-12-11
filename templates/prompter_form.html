@@ -1,7 +1,7 @@
-<!-- templates/create_prompt.html -->
+<!-- templates/prompter_form.html -->
 
 <head>
-    <!-- Make sure to include jQuery if it's not already included -->
+    <!-- Include jQuery -->
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
 
     <!-- Add Socket.IO JavaScript client -->
@@ -22,11 +22,10 @@
         <input type="button" value="Submit" onclick="sendPromptData()">
     </form>
 
-    <!-- Divs for displaying stories -->
+    <!-- Divs for displaying stories and words -->
     <div id="japaneseStory"></div>
     <div id="englishSummary"></div>
-
-    <div id="results"></div>
+    <ul id="difficultWords"></ul>
 
     <script>
         var socket = io();
@@ -35,44 +34,27 @@
             var CMD = $("#CMD").val();
             var tag = $("#tag").val();
             var SPINS = $("#SPINS").val();
-            $("#japaneseStory").html(""); // Clear previous Japanese story
-            $("#englishSummary").html(""); // Clear previous English summary
+            // Clear previous content
+            $("#japaneseStory").html("");
+            $("#englishSummary").html("");
+            $("#difficultWords").empty();
             socket.emit('send_prompt', {CMD: CMD, tag: tag, SPINS: SPINS});
         }
 
-        // Function to check if a string contains Japanese characters
-        function containsJapanese(text) {
-            return /[\u3000-\u303f\u3040-\u309f\u30a0-\u30ff\u3400-\u4dbf\u4e00-\u9fff\uf900-\ufaff]/.test(text);
-        }
-
-        // Function to display Japanese story
-        function displayJapaneseStory(content) {
-            if (containsJapanese(content)) {
-                $("#japaneseStory").append(content);
-            }
-        }
-
-        // Function to display English summary
-        function displayEnglishSummary(content) {
-            if (!containsJapanese(content)) {
-                $("#englishSummary").append(content);
-            }
-        }
-
-        socket.on('text_chunk', function(data) {
-            var content = data.chunk;
-            displayJapaneseStory(content);
-            displayEnglishSummary(content);
+        socket.on('prompt_response', function(data) {
+            $("#japaneseStory").html(data.japanese_story);
+            $("#englishSummary").html(data.english_summary);
+            data.difficult_words.forEach(function(word) {
+                $("#difficultWords").append(`<li>${word.japanese} - ${word.english}</li>`);
+            });
         });
 
         socket.on('update', function(data) {
-            $("#results").append("<p>" + data.message + "</p>"); // Append update messages
+            // Handle update messages if needed
         });
 
         socket.on('stream_end', function(data) {
-            $("#results").append("<p>" + data.message + "</p>"); // Append the end message
+            // Handle stream end message if needed
         });
     </script>
 </body>
-
-    
