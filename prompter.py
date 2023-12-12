@@ -30,23 +30,29 @@ def create_prompt(CMD, tag, SPINS):
     return final_prompt, CMD in cmd_templates
     
 
-def generate_image_with_dalle(english_summary):
-    # Adding the boilerplate to the English summary
-    dalle_prompt = "Generate an image based on: " + english_summary
+def generate_image_with_dalle(story):
+    # Truncate the story to the first 500 characters
+    truncated_story = story[:500]
 
+    # Prepare the prompt for DALL-E
+    dalle_prompt = "Generate an image based on: " + truncated_story
+
+    # Make the API request to DALL-E
     response = requests.post(
         "https://api.openai.com/v1/images/generations",
         headers={"Authorization": f"Bearer {api_key}"},
         json={"model": "dall-e-2", "prompt": dalle_prompt, "n": 1, "size": "1024x1024"}
     )
 
+    # Check the response status
     if response.status_code == 200:
         response_data = response.json()
         image_url = response_data['data'][0]['url']
         return image_url
     else:
-        print("Error in image generation:", response.status_code, response.text)
+        print(f"Error in image generation: {response.status_code}, {response.text}")
         return ""
+
 
    
 
