@@ -89,25 +89,28 @@ def prompter():
 
 from flask_socketio import emit
 
-# Existing imports and setup...
 @socketio.on('send_prompt')
 def handle_send_prompt(data):
     CMD = data['CMD']
     tag = data['tag']
     SPINS = data['SPINS']
 
-    # Call send_prompt_to_openai to get story and difficult words
-    story, difficult_words = send_prompt_to_openai(CMD, tag, SPINS)
+    # Get the story, its English summary, and difficult words
+    japanese_story, english_summary, difficult_words = send_prompt_to_openai(CMD, tag, SPINS)
 
-    # Generate image with DALL-E
-    image_url = generate_image_with_dalle(story)
+    # Generate an image with DALL-E using the English summary
+    image_url = generate_image_with_dalle(english_summary)
 
     # Emit the story, difficult words, and image URL
     emit('prompt_response', {
-        'text_response': story, 
-        'difficult_words': difficult_words, 
+        'japanese_story': japanese_story,
+        'english_summary': english_summary,
+        'difficult_words': difficult_words,
         'image_url': image_url
     })
+
+
+
 
 
 @app.route('/add_user', methods=['GET', 'POST'])

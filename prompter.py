@@ -30,12 +30,16 @@ def create_prompt(CMD, tag, SPINS):
     return final_prompt, CMD in cmd_templates
     
 
- def generate_image_with_dalle(prompt):
+def generate_image_with_dalle(english_summary):
+    # Adding the boilerplate to the English summary
+    dalle_prompt = "Generate an image based on: " + english_summary
+
     response = requests.post(
         "https://api.openai.com/v1/images/generations",
         headers={"Authorization": f"Bearer {api_key}"},
-        json={"model": "dall-e-2", "prompt": prompt, "n": 1, "size": "1024x1024"}
+        json={"model": "dall-e-2", "prompt": dalle_prompt, "n": 1, "size": "1024x1024"}
     )
+
     if response.status_code == 200:
         response_data = response.json()
         image_url = response_data['data'][0]['url']
@@ -43,6 +47,7 @@ def create_prompt(CMD, tag, SPINS):
     else:
         print("Error in image generation:", response.status_code, response.text)
         return ""
+
    
 
 
