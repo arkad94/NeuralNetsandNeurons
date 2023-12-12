@@ -49,6 +49,14 @@ def generate_image_with_dalle(story):
         n=1,
     )
 
+    # Check if the response is successful
+    if response.successful:
+        image_url = response.data[0].url
+        return image_url
+    else:
+        print(f"Error in image generation: {response.error}")
+        return ""
+
     # Extract the image URL from the response
     if response.status == 200:
         image_url = response.data[0].url
