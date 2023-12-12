@@ -42,7 +42,7 @@ def generate_image_with_dalle(story):
         "https://api.openai.com/v1/images/generations",
         headers={"Authorization": f"Bearer {api_key}"},
         json={
-            "model": "dall-e-3", 
+            "model": "dall-e-2", 
             "prompt": dalle_prompt, 
             "n": 1, 
             "size": "1024x1024", 
@@ -50,13 +50,20 @@ def generate_image_with_dalle(story):
         }
     )
 
+    # Check if the response is successful
     if response.status_code == 200:
         response_data = response.json()
-        image_data = response_data['data'][0]['b64_image']
-        return image_data  # This will be a base64 encoded string of the image
+        # Check if 'b64_image' key exists in the response
+        if 'b64_image' in response_data['data'][0]:
+            image_data = response_data['data'][0]['b64_image']
+            return image_data  # Base64 encoded string of the image
+        else:
+            print("b64_image key not found in response")
+            return ""
     else:
         print(f"Error in image generation: {response.status_code}, {response.text}")
         return ""
+
 
 
 
