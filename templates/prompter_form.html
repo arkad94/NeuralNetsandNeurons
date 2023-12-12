@@ -50,9 +50,11 @@
             data.difficult_words.forEach(function(word) {
                 $("#difficultWords").append(`<li>${word.japanese} - ${word.english}</li>`);
             });
-            if (data.image_url) {
-                $("#imageContainer").html(`<img src="${data.image_url}" alt="Generated Image">`);
+            if (data.image_data) {
+                var imageHTML = `<img src="data:image/jpeg;base64,${data.image_data}" alt="Generated Image">`;
+                $("#imageContainer").html(imageHTML);
             }
         });
     </script>
 </body>
+

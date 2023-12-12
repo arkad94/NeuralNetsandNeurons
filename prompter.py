@@ -41,17 +41,23 @@ def generate_image_with_dalle(story):
     response = requests.post(
         "https://api.openai.com/v1/images/generations",
         headers={"Authorization": f"Bearer {api_key}"},
-        json={"model": "dall-e-2", "prompt": dalle_prompt, "n": 1, "size": "1024x1024"}
+        json={
+            "model": "dall-e-2", 
+            "prompt": dalle_prompt, 
+            "n": 1, 
+            "size": "1024x1024", 
+            "response_format": "b64_json"
+        }
     )
 
-    # Check the response status
     if response.status_code == 200:
         response_data = response.json()
-        image_url = response_data['data'][0]['url']
-        return image_url
+        image_data = response_data['data'][0]['b64_image']
+        return image_data  # This will be a base64 encoded string of the image
     else:
         print(f"Error in image generation: {response.status_code}, {response.text}")
         return ""
+
 
 
    
