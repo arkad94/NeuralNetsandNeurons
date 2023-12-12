@@ -83,18 +83,15 @@ def send_prompt_to_openai(CMD, tag, SPINS):
         response = requests.post("https://api.openai.com/v1/chat/completions", 
                                  headers=headers, 
                                  data=json.dumps(data))
-
         if response.status_code == 200:
             response_data = response.json()
             text_response = response_data['choices'][0]['message']['content'].strip()
-            difficult_words = extract_difficult_words(text_response)
-            return text_response, difficult_words
+            return text_response
         else:
             print("Error:", response.status_code, response.text)
-            return "", []
+            return ""
 
-    else:
-        return "", []
+    return ""
 
 
 
