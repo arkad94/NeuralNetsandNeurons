@@ -42,7 +42,7 @@ def generate_image_with_dalle(story):
         "https://api.openai.com/v1/images/generations",
         headers={"Authorization": f"Bearer {api_key}"},
         json={
-            "model": "dall-e-2", 
+            "model": "dall-e-3", 
             "prompt": dalle_prompt, 
             "n": 1, 
             "size": "1024x1024", 
