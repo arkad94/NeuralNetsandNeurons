@@ -43,18 +43,19 @@
             socket.emit('send_prompt', {CMD: CMD, tag: tag, SPINS: SPINS});
         }
 
-        socket.on('prompt_response', function(data) {
-            $("#loadingIndicator").hide();
-            $("#japaneseStory").html(data.text_response);
-            $("#englishSummary").html(data.english_summary); // Assuming you add this field in the backend response
-            data.difficult_words.forEach(function(word) {
-                $("#difficultWords").append(`<li>${word.japanese} - ${word.english}</li>`);
-            });
-            if (data.image_data) {
-                var imageHTML = `<img src="data:image/jpeg;base64,${data.image_data}" alt="Generated Image">`;
-                $("#imageContainer").html(imageHTML);
-            }
-        });
+socket.on('prompt_response', function(data) {
+    $("#loadingIndicator").hide();
+    $("#japaneseStory").html(data.text_response);
+    if (data.english_summary) {
+        $("#englishSummary").html(data.english_summary);
+    }
+    if (data.image_url) {
+        var imageHTML = `<img src="${data.image_url}" alt="Generated Image">`;
+        $("#imageContainer").html(imageHTML);
+    }
+});
+
+      
     </script>
 </body>
 

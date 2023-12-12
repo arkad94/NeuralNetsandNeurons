@@ -31,24 +31,31 @@ def create_prompt(CMD, tag, SPINS):
     
 
 def generate_image_with_dalle(story):
-    # Truncate the story to the first 500 characters
-    truncated_story = story[:500]
+    # Initialize OpenAI client
+    client = OpenAI()
+
+    # Truncate the story to the first 4000 characters
+    truncated_story = story[:4000]
 
     # Prepare the prompt for DALL-E
     dalle_prompt = "Generate an image based on: " + truncated_story
 
     # Make the API request to DALL-E
-    response = requests.post(
-        "https://api.openai.com/v1/images/generations",
-        headers={"Authorization": f"Bearer {api_key}"},
-        json={
-            "model": "dall-e-2", 
-            "prompt": dalle_prompt, 
-            "n": 1, 
-            "size": "1024x1024", 
-            "response_format": "b64_json"
-        }
+    response = client.images.generate(
+        model="dall-e-3",
+        prompt=dalle_prompt,
+        size="1024x1024",
+        quality="standard",
+        n=1,
     )
+
+    # Extract the image URL from the response
+    if response.status == 200:
+        image_url = response.data[0].url
+        return image_url
+    else:
+        print(f"Error in image generation: {response.status}, {response.error}")
+        return ""
 
     # Check if the response is successful
     if response.status_code == 200:
