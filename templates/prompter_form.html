@@ -22,10 +22,11 @@
         <input type="button" value="Submit" onclick="sendPromptData()">
     </form>
 
-    <!-- Divs for displaying stories and words -->
+    <div id="loadingIndicator" style="display: none;">Loading...</div>
     <div id="japaneseStory"></div>
     <div id="englishSummary"></div>
     <ul id="difficultWords"></ul>
+    <div id="imageContainer"></div>
 
     <script>
         var socket = io();
@@ -34,27 +35,24 @@
             var CMD = $("#CMD").val();
             var tag = $("#tag").val();
             var SPINS = $("#SPINS").val();
-            // Clear previous content
+            $("#loadingIndicator").show();
             $("#japaneseStory").html("");
             $("#englishSummary").html("");
             $("#difficultWords").empty();
+            $("#imageContainer").empty();
             socket.emit('send_prompt', {CMD: CMD, tag: tag, SPINS: SPINS});
         }
 
         socket.on('prompt_response', function(data) {
-            $("#japaneseStory").html(data.japanese_story);
-            $("#englishSummary").html(data.english_summary);
+            $("#loadingIndicator").hide();
+            $("#japaneseStory").html(data.text_response);
+            $("#englishSummary").html(data.english_summary); // Assuming you add this field in the backend response
             data.difficult_words.forEach(function(word) {
                 $("#difficultWords").append(`<li>${word.japanese} - ${word.english}</li>`);
             });
-        });
-
-        socket.on('update', function(data) {
-            // Handle update messages if needed
-        });
-
-        socket.on('stream_end', function(data) {
-            // Handle stream end message if needed
+            if (data.image_url) {
+                $("#imageContainer").html(`<img src="${data.image_url}" alt="Generated Image">`);
+            }
         });
     </script>
 </body>

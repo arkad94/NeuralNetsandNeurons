@@ -28,6 +28,22 @@ def create_prompt(CMD, tag, SPINS):
     instruction_str = ", ".join(instructions)
     final_prompt = f"{prompt_template} based on the following instructions: {instruction_str}." if instructions else prompt_template
     return final_prompt, CMD in cmd_templates
+    
+
+ def generate_image_with_dalle(prompt):
+    response = requests.post(
+        "https://api.openai.com/v1/images/generations",
+        headers={"Authorization": f"Bearer {api_key}"},
+        json={"model": "dall-e-2", "prompt": prompt, "n": 1, "size": "1024x1024"}
+    )
+    if response.status_code == 200:
+        response_data = response.json()
+        image_url = response_data['data'][0]['url']
+        return image_url
+    else:
+        print("Error in image generation:", response.status_code, response.text)
+        return ""
+   
 
 
 def process_text(text):
@@ -47,7 +63,8 @@ def process_text(text):
     return japanese_story, english_summary, formatted_difficult_words
 
 
-def send_prompt_to_openai(CMD, tag, SPINS, stream=False):
+
+def send_prompt_to_openai(CMD, tag, SPINS):
     final_prompt, valid_cmd = create_prompt(CMD, tag, SPINS)
     if valid_cmd:
         headers = {
@@ -56,45 +73,17 @@ def send_prompt_to_openai(CMD, tag, SPINS, stream=False):
         }
         data = {
             "model": "gpt-3.5-turbo",
-            "messages": [{"role": "user", "content": final_prompt}],
-            "stream": stream
+            "messages": [{"role": "user", "content": final_prompt}]
         }
         response = requests.post("https://api.openai.com/v1/chat/completions", 
-                                 headers=headers, data=json.dumps(data))
+                                 headers=headers, 
+                                 data=json.dumps(data))
 
-        if response.status_code == 200 and stream:
-            full_text = ""
-            for line in response.iter_lines():
-                if line:
-                    line_str = line.decode('utf-8').strip()
-                    if line_str.startswith('data: '):
-                        json_str = line_str[6:]  # Strip off 'data: '
-                        if json_str != "[DONE]":  # Ignore the DONE marker
-                            try:
-                                streamed_response = json.loads(json_str)
-                                if 'choices' in streamed_response and 'delta' in streamed_response['choices'][0]:
-                                    delta_content = streamed_response['choices'][0]['delta'].get('content', '')
-                                    full_text += delta_content
-                            except json.JSONDecodeError as e:
-                                print("Error decoding JSON:", e)
-                        else:
-                            print("Stream end marker received.")
-                            break  # Exit the loop if DONE marker is received
-                    else:
-                        print("Line did not start with 'data: '", line_str)
-            japanese_story, english_summary, difficult_words = process_text(full_text)
-            return {
-                "japanese_story": japanese_story,
-                "english_summary": english_summary,
-                "difficult_words": difficult_words
-            }
-
-        elif response.status_code == 200 and not stream:
+        if response.status_code == 200:
             response_data = response.json()
             text_response = response_data['choices'][0]['message']['content'].strip()
             difficult_words = extract_difficult_words(text_response)
             return text_response, difficult_words
-
         else:
             print("Error:", response.status_code, response.text)
             return "", []
