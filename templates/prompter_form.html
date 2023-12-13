@@ -42,20 +42,37 @@
             $("#imageContainer").empty();
             socket.emit('send_prompt', {CMD: CMD, tag: tag, SPINS: SPINS});
         }
-
-socket.on('prompt_response', function(data) {
-    $("#loadingIndicator").hide();
-    $("#japaneseStory").html(data.text_response);
-    if (data.english_summary) {
-        $("#englishSummary").html(data.english_summary);
-    }
-    if (data.image_url) {
-        var imageHTML = `<img src="${data.image_url}" alt="Generated Image">`;
-        $("#imageContainer").html(imageHTML);
-    }
-});
-
-      
+    
+        socket.on('prompt_response', function(data) {
+            $("#loadingIndicator").hide();
+    
+            // Process and display Japanese story
+            if (data.japanese_story) {
+                $("#japaneseStory").html("<h2>Title 1: Japanese Story</h2><p>" + data.japanese_story + "</p>");
+            }
+    
+            // Process and display English summary
+            if (data.english_summary) {
+                $("#englishSummary").html("<h2>Title 2: English Summary</h2><p>" + data.english_summary + "</p>");
+            }
+    
+            // Process and display difficult words
+            if (data.difficult_words && data.difficult_words.length > 0) {
+                var difficultWordsList = "<h2>Title 3: Difficult Words</h2><ul>";
+                data.difficult_words.forEach(function(word) {
+                    difficultWordsList += "<li>" + word.japanese + " - " + word.english + "</li>";
+                });
+                difficultWordsList += "</ul>";
+                $("#difficultWords").html(difficultWordsList);
+            }
+    
+            // Display image if available
+            if (data.image_url) {
+                var imageHTML = `<img src="${data.image_url}" alt="Generated Image">`;
+                $("#imageContainer").html(imageHTML);
+            }
+        });
     </script>
+    
 </body>
 

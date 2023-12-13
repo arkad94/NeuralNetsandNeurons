@@ -95,18 +95,20 @@ def handle_send_prompt(data):
     tag = data['tag']
     SPINS = data['SPINS']
 
+    # Get the story and process it to extract different parts
     story = send_prompt_to_openai(CMD, tag, SPINS)
+    japanese_story, english_summary, difficult_words = process_text(story)
 
-    # Generate image with DALL-E
-    image_url = generate_image_with_dalle(story)  # This function needs to be implemented
+    # Generate image with DALL-E using the English summary
+    image_url = generate_image_with_dalle(english_summary)
 
-    # Emit the story and image URL
+    # Emit the separated story parts and image URL
     emit('prompt_response', {
-        'text_response': story, 
+        'japanese_story': japanese_story,
+        'english_summary': english_summary,
+        'difficult_words': difficult_words,
         'image_url': image_url
     })
-
-
 
 
 

@@ -58,41 +58,6 @@ def generate_image_with_dalle(story):
         return ""
 
 
-    # Check if the response is successful
-    if response.successful:
-        image_url = response.data[0].url
-        return image_url
-    else:
-        print(f"Error in image generation: {response.error}")
-        return ""
-
-    # Extract the image URL from the response
-    if response.status == 200:
-        image_url = response.data[0].url
-        return image_url
-    else:
-        print(f"Error in image generation: {response.status}, {response.error}")
-        return ""
-
-    # Check if the response is successful
-    if response.status_code == 200:
-        response_data = response.json()
-        # Check if 'b64_image' key exists in the response
-        if 'b64_image' in response_data['data'][0]:
-            image_data = response_data['data'][0]['b64_image']
-            return image_data  # Base64 encoded string of the image
-        else:
-            print("b64_image key not found in response")
-            return ""
-    else:
-        print(f"Error in image generation: {response.status_code}, {response.text}")
-        return ""
-
-
-
-
-   
-
 
 def process_text(text):
     # Regular expression patterns
@@ -109,7 +74,6 @@ def process_text(text):
     formatted_difficult_words = [{'japanese': dw[0].strip(), 'english': dw[1].strip()} for dw in difficult_words]
 
     return japanese_story, english_summary, formatted_difficult_words
-
 
 
 def send_prompt_to_openai(CMD, tag, SPINS):
@@ -135,12 +99,6 @@ def send_prompt_to_openai(CMD, tag, SPINS):
             return ""
 
     return ""
-
-
-
-
-
-
 
 
 def extract_difficult_words(response):
