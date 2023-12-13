@@ -13,7 +13,7 @@ api_key = os.getenv("OPENAI_API_KEY")
 def create_prompt(CMD, tag, SPINS):
     cmd_templates = {
         "Word of The Day in Japanese": "Give 5 words in Japanese based on the tag given, Make sure you tabulate them as Japanese word, Furigana, English word, and example sentence in respective columns",
-        "A Story": "Write a Japanese story in Japanese, followed with a summary in English and in the end under the header difficult words separately list difficult Japanese words and their english translations. Japanese Story has heading as title, the english summary which follows the Japanese story has title English Summary, and the difficult words are under the header difficult words devation from the format would be harmful",
+        "A Story": "Write a Japanese story in Japanese, followed with a summary in English and in the end under the header difficult words separately list difficult Japanese words and their english translations. Japanese Story has heading as title, the english summary which follows the Japanese story has title English Summary, and the difficult words are under the header difficult words as (日本語・English Pronounciation) devation from the format would be harmful",
         # Add more CMDs and their templates here
     }
 
@@ -104,7 +104,7 @@ def send_prompt_to_openai(CMD, tag, SPINS):
 def extract_difficult_words(response):
     difficult_words = []
     for line in response.split('\n'):
-        if '|' in line:  # Adjusted to match the new delimiter
+        if '・' in line:  # Adjusted to match the newnew delimiter
             parts = line.strip().split('|')
             if len(parts) == 2:
                 japanese, english = parts
