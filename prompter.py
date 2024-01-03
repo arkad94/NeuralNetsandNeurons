@@ -68,12 +68,25 @@ def process_text(text):
     japanese_story = ' '.join(re.findall(japanese_pattern, text))
     english_summary = ' '.join(re.findall(english_pattern, text))
 
-    # Extract difficult words
-    difficult_words_pattern = r'([^\|]+)\|([^\|]+)'
-    difficult_words = re.findall(difficult_words_pattern, text)
-    formatted_difficult_words = [{'japanese': dw[0].strip(), 'english': dw[1].strip()} for dw in difficult_words]
+    # Find the difficult words section
+    difficult_words_section = re.search('Difficult Words(.*)', text, re.DOTALL)
+
+    # Initialize an empty list to store formatted difficult words
+    formatted_difficult_words = []
+
+    if difficult_words_section:
+        # Extract the difficult words from the section
+        difficult_words_lines = difficult_words_section.group(1).strip().split('\n')
+        for line in difficult_words_lines:
+            # Split the line using the middle dot as the delimiter
+            parts = line.split('・')
+            if len(parts) == 2:
+                japanese = parts[0].strip()
+                english = parts[1].strip()
+                formatted_difficult_words.append({'japanese': japanese, 'english': english})
 
     return japanese_story, english_summary, formatted_difficult_words
+
 
 
 def send_prompt_to_openai(CMD, tag, SPINS):
@@ -102,11 +115,15 @@ def send_prompt_to_openai(CMD, tag, SPINS):
 
 
 def extract_difficult_words(response):
+    # First, isolate the difficult words section
+    difficult_words_section = response.split('Difficult Words')[1] if 'Difficult Words' in response else ""
+    
     difficult_words = []
-    for line in response.split('\n'):
-        if '・' in line:  # Adjusted to match the newnew delimiter
-            parts = line.strip().split('|')
+    # Now process each line within this section
+    for line in difficult_words_section.split('\n'):
+        if '・' in line:  # Correct delimiter for splitting
+            parts = line.strip().split('・')  # Split using the correct delimiter
             if len(parts) == 2:
-                japanese, english = parts
-                difficult_words.append((japanese.strip(), english.strip()))
+                japanese, english = parts[0], parts[1]
+                difficult_words.append({'japanese': japanese.strip(), 'english': english.strip()})
     return difficult_words
