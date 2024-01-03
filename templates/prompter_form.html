@@ -97,7 +97,7 @@
     
             // Process and display difficult words
             if (data.difficult_words && data.difficult_words.length > 0) {
-                var difficultWordsList = "<h2>Title 3: Difficult Words</h2><ul>";
+                var difficultWordsList = "<h2>難解な言葉: Difficult Words</h2><ul>";
                 data.difficult_words.forEach(function(word) {
                     difficultWordsList += "<li>" + word.japanese + " - " + word.english + "</li>";
                 });
