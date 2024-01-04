@@ -99,7 +99,7 @@ def handle_send_prompt(data):
 
     if CMD == "Word of The Day in Japanese":
         # Directly emit the OpenAI response for Word of The Day
-        emit('prompt_response', {'openai_response': response})
+        emit('prompt_response', {'openai_raw_response': response})
     elif CMD == "A Story":
         # Handle the streaming process for A Story
         japanese_story, english_summary, difficult_words = process_text(response)

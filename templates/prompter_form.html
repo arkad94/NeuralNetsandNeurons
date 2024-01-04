@@ -105,8 +105,8 @@
         if (data.image_url) {
             $("#imageContainer").html(`<img src="${data.image_url}" alt="Generated Image">`);
         }
-    } else if (data.openai_response) {
-        // Handle Word of The Day...
+    } else if (data.openai_raw_response) {
+       $("#wordsContainer").html("<pre>" + data.openai_raw_response + "</pre>");
     } else {
         // Handle invalid command or missing data...
     }
