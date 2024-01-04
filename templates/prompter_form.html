@@ -83,35 +83,49 @@
         }
     
         socket.on('prompt_response', function(data) {
+            console.log(data); // For debugging
             $("#loadingIndicator").hide();
-    
-            // Process and display Japanese story
-            if (data.japanese_story) {
-                $("#japaneseStory").html("<h2>日本語・Japanese</h2><p>" + data.japanese_story + "</p>");
+            
+            if(data.error) {
+                alert(data.error); // Simple error alert
+                return;
             }
-    
-            // Process and display English summary
-            if (data.english_summary) {
-                $("#englishSummary").html("<h2>英語・English</h2><p>" + data.english_summary + "</p>");
+
+            // Process for 'A Story' command
+            if (CMD === "A Story") {
+                if (data.japanese_story) {
+                    $("#japaneseStory").html("<h2>日本語・Japanese</h2><p>" + data.japanese_story + "</p>");
+                }
+
+                if (data.english_summary) {
+                    $("#englishSummary").html("<h2>英語・English</h2><p>" + data.english_summary + "</p>");
+                }
+
+                if (data.image_url) {
+                    var imageHTML = `<img src="${data.image_url}" alt="Generated Image">`;
+                    $("#imageContainer").html(imageHTML);
+                }
             }
-    
-            // Process and display difficult words
-            if (data.difficult_words && data.difficult_words.length > 0) {
-                var difficultWordsList = "<h2>難解な言葉: Difficult Words</h2><ul>";
-                data.difficult_words.forEach(function(word) {
-                    difficultWordsList += "<li>" + word.japanese + " - " + word.english + "</li>";
-                });
-                difficultWordsList += "</ul>";
-                $("#difficultWords").html(difficultWordsList);
+
+            // Process for 'Word of The Day in Japanese' command
+            if (CMD === "Word of The Day in Japanese") {
+                if (data.words && data.words.length > 0) {
+                    var wordsList = "<h2>日本語の単語: Words</h2><ul>";
+                    data.words.forEach(function(word) {
+                        wordsList += "<li>" + word.japanese + " - " + word.english + "</li>";
+                    });
+                    wordsList += "</ul>";
+                    $("#difficultWords").html(wordsList);
+                }
             }
-    
-            // Display image if available
-            if (data.image_url) {
-                var imageHTML = `<img src="${data.image_url}" alt="Generated Image">`;
-                $("#imageContainer").html(imageHTML);
+
+            // Handle other cases or empty data
+            if (!data.japanese_story && !data.words) {
+                $("#japaneseStory").html("<p>No data received. Check the command or try again.</p>");
             }
         });
     </script>
+
     
 </body>
 
