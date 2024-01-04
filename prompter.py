@@ -38,7 +38,7 @@ def generate_image_with_dalle(story):
     truncated_story = story[:4000]
 
     # Prepare the prompt for DALL-E
-    dalle_prompt = "Generate an image based on: " + truncated_story
+    dalle_prompt = "Generate an image that visually represents this story: \"" + truncated_story + "\". Please do not include any text in the image."
 
     # Make the API request to DALL-E
     response = client.images.generate(
