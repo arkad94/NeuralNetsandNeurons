@@ -87,14 +87,11 @@
         socket.on('prompt_response', function(data) {
             $("#loadingIndicator").hide();
 
-            if (data.words) {
-                var wordsListHtml = "<h2>今日の単語: Word of The Day</h2><ul>";
-                data.words.forEach(function(word) {
-                    wordsListHtml += "<li>" + word.japanese + " - " + word.english + "</li>";
-                });
-                wordsListHtml += "</ul>";
-                $("#wordsContainer").html(wordsListHtml);
+            if (data.openai_response) {
+                // Display the raw OpenAI response for Word of The Day
+                $("#wordsContainer").html("<pre>" + data.openai_response + "</pre>");
             } else if (data.japanese_story) {
+                // Existing code for handling "A Story"...
                 $("#japaneseStory").html("<h2>日本語・Japanese</h2><p>" + data.japanese_story + "</p>");
                 $("#englishSummary").html("<h2>英語・English</h2><p>" + data.english_summary + "</p>");
                 var difficultWordsList = "<h2>難解な言葉: Difficult Words</h2><ul>";
@@ -110,9 +107,6 @@
             }
         });
     </script>
-    
-
-    
 </body>
 
 </html>
