@@ -97,7 +97,7 @@ def send_prompt_to_openai(CMD, tag, SPINS):
             "Content-Type": "application/json"
         }
         data = {
-            "model": "gpt-4",
+            "model": "gpt-3.5-turbo-1106",
             "messages": [{"role": "user", "content": final_prompt}]
         }
         response = requests.post("https://api.openai.com/v1/chat/completions", 
