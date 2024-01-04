@@ -97,10 +97,10 @@ def handle_send_prompt(data):
 
     response = send_prompt_to_openai(CMD, tag, SPINS)
 
-    if CMD == "Word of The Day in Japanese":
+    if CMD == "words":
         # Directly emit the OpenAI response for Word of The Day
         emit('prompt_response', {'openai_raw_response': response})
-    elif CMD == "A Story":
+    elif CMD == "story":
         # Handle the streaming process for A Story
         japanese_story, english_summary, difficult_words = process_text(response)
         image_url = generate_image_with_dalle(english_summary)
