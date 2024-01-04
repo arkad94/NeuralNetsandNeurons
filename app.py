@@ -98,36 +98,27 @@ def handle_send_prompt(data):
     # Get the response from OpenAI
     response = send_prompt_to_openai(CMD, tag, SPINS)
 
-    if CMD == "A Story":
-        # Process for 'A Story' command
+    if CMD == "Word of The Day in Japanese":
+        # Emit the raw response for Word of The Day
+        emit('prompt_response', {
+            'openai_response': response
+        })
+    elif CMD == "A Story":
+        # Continue with the existing process for A Story
         japanese_story, english_summary, difficult_words = process_text(response)
-
-        # Generate image with DALL-E using the English summary
         image_url = generate_image_with_dalle(english_summary)
-
-        # Emit the separated story parts and image URL
         emit('prompt_response', {
             'japanese_story': japanese_story,
             'english_summary': english_summary,
             'difficult_words': difficult_words,
             'image_url': image_url
         })
-
-    elif CMD == "Word of The Day in Japanese":
-        # Process for 'Word of The Day in Japanese' command
-        # Extract the words and their details from the response
-        words = extract_difficult_words(response)
-
-        # Emit the words without generating an image
-        emit('prompt_response', {
-            'words': words
-        })
-
     else:
         # Handle any other CMDs or invalid CMD
         emit('prompt_response', {
             'error': "Invalid Command"
         })
+
 
 
 

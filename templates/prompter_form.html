@@ -64,6 +64,7 @@
     <div id="japaneseStory"></div>
     <div id="englishSummary"></div>
     <div id="imageContainer"></div>
+    <div id="wordsContainer"></div>
     <ul id="difficultWords"></ul>
 
     <script>
@@ -82,26 +83,39 @@
             $("#cmdGuideTable").addClass('hidden');
             socket.emit('send_prompt', {CMD: CMD, tag: tag, SPINS: SPINS});
         }
+     socket.on('prompt_response', function(data) {
+    $("#loadingIndicator").hide();
     
-        socket.on('prompt_response', function(data) {
-            console.log("Received Data:", data); // Log the received data
-            var CMD = $("#CMD").val(); // Ensure CMD is correctly captured here
-            console.log("Processing CMD:", CMD); // Log the CMD being processed
-            $("#loadingIndicator").hide();
-            
-            if(data.error) {
-                alert(data.error);
-                return;
-            }
-    
-            if (CMD === "A Story") {
-                // Existing code for processing 'A Story' command
-            } else if (CMD === "Word of The Day in Japanese") {
-                // Processing for 'Word of The Day in Japanese' command
-            } else {
-                $("#japaneseStory").html("<p>No data received or unrecognized command.</p>");
-            }
+    if (data.words) {
+        // Handle the Word of The Day in Japanese command
+        var wordsList = "<h2>今日の単語: Word of The Day</h2><ul>";
+        data.words.forEach(function(word) {
+            wordsList += "<li>" + word.japanese + " - " + word.english + "</li>";
         });
+        wordsList += "</ul>";
+        $("#wordsContainer").html(wordsList);
+    } else if (data.japanese_story) {
+        // Handle the A Story command
+        $("#japaneseStory").html("<h2>日本語・Japanese</h2><p>" + data.japanese_story + "</p>");
+        $("#englishSummary").html("<h2>英語・English</h2><p>" + data.english_summary + "</p>");
+        var difficultWordsList = "<h2>難解な言葉: Difficult Words</h2><ul>";
+        data.difficult_words.forEach(function(word) {
+            difficultWordsList += "<li>" + word.japanese + " - " + word.english + "</li>";
+        });
+        difficultWordsList += "</ul>";
+        $("#difficultWords").html(difficultWordsList);
+        var imageHTML = `<img src="${data.image_url}" alt="Generated Image">`;
+        $("#imageContainer").html(imageHTML);
+    } else {
+        // Handle an invalid command or missing data
+        $("#openaiResponse").html("<p>Received an invalid command or no data.</p>");
+    }
+});
+
+
+
+
+    
     </script>
     
 
