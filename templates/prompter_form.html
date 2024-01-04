@@ -85,27 +85,33 @@
         }
 
         socket.on('prompt_response', function(data) {
-            $("#loadingIndicator").hide();
+    $("#loadingIndicator").hide();
 
-            if (data.openai_response) {
-                // Display the raw OpenAI response for Word of The Day
-                $("#wordsContainer").html("<pre>" + data.openai_response + "</pre>");
-            } else if (data.japanese_story) {
-                // Existing code for handling "A Story"...
-                $("#japaneseStory").html("<h2>日本語・Japanese</h2><p>" + data.japanese_story + "</p>");
-                $("#englishSummary").html("<h2>英語・English</h2><p>" + data.english_summary + "</p>");
-                var difficultWordsList = "<h2>難解な言葉: Difficult Words</h2><ul>";
-                data.difficult_words.forEach(function(word) {
-                    difficultWordsList += "<li>" + word.japanese + " - " + word.english + "</li>";
-                });
-                difficultWordsList += "</ul>";
-                $("#difficultWords").html(difficultWordsList);
-                var imageHTML = `<img src="${data.image_url}" alt="Generated Image">`;
-                $("#imageContainer").html(imageHTML);
-            } else {
-                $("#openaiResponse").html("<p>Received an invalid command or no data.</p>");
-            }
-        });
+    if (data.japanese_story) {
+        $("#japaneseStory").html("<h2>日本語・Japanese</h2><p>" + data.japanese_story + "</p>");
+        $("#englishSummary").html("<h2>英語・English</h2><p>" + data.english_summary + "</p>");
+
+        if (data.difficult_words && data.difficult_words.length > 0) {
+            var difficultWordsList = "<h2>難解な言葉: Difficult Words</h2><ul>";
+            data.difficult_words.forEach(function(word) {
+                difficultWordsList += "<li>" + word.japanese + " - " + word.english + "</li>";
+            });
+            difficultWordsList += "</ul>";
+            $("#difficultWords").html(difficultWordsList);
+        } else {
+            $("#difficultWords").html("<p>No difficult words found.</p>");
+        }
+
+        if (data.image_url) {
+            $("#imageContainer").html(`<img src="${data.image_url}" alt="Generated Image">`);
+        }
+    } else if (data.openai_response) {
+        // Handle Word of The Day...
+    } else {
+        // Handle invalid command or missing data...
+    }
+});
+
     </script>
 </body>
 
