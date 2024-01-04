@@ -57,7 +57,12 @@ def generate_image_with_dalle(story):
         print(f"Error in image generation: {response.error}")
         return ""
 
-
+def extract_words(response_text):
+    # Implement the logic to parse the response_text and extract words
+    # This is a placeholder function; adjust the parsing logic based on the actual response format
+    words = []
+    # ... parsing logic to fill the words list ...
+    return words
 
 def process_text(text):
     # Regular expression patterns

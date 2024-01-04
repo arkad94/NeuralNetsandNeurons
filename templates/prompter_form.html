@@ -69,7 +69,7 @@
 
     <script>
         var socket = io();
-    
+
         function sendPromptData() {
             var CMD = $("#CMD").val();
             var tag = $("#tag").val();
@@ -83,39 +83,32 @@
             $("#cmdGuideTable").addClass('hidden');
             socket.emit('send_prompt', {CMD: CMD, tag: tag, SPINS: SPINS});
         }
-     socket.on('prompt_response', function(data) {
-    $("#loadingIndicator").hide();
-    
-    if (data.words) {
-        // Handle the Word of The Day in Japanese command
-        var wordsList = "<h2>今日の単語: Word of The Day</h2><ul>";
-        data.words.forEach(function(word) {
-            wordsList += "<li>" + word.japanese + " - " + word.english + "</li>";
+
+        socket.on('prompt_response', function(data) {
+            $("#loadingIndicator").hide();
+
+            if (data.words) {
+                var wordsListHtml = "<h2>今日の単語: Word of The Day</h2><ul>";
+                data.words.forEach(function(word) {
+                    wordsListHtml += "<li>" + word.japanese + " - " + word.english + "</li>";
+                });
+                wordsListHtml += "</ul>";
+                $("#wordsContainer").html(wordsListHtml);
+            } else if (data.japanese_story) {
+                $("#japaneseStory").html("<h2>日本語・Japanese</h2><p>" + data.japanese_story + "</p>");
+                $("#englishSummary").html("<h2>英語・English</h2><p>" + data.english_summary + "</p>");
+                var difficultWordsList = "<h2>難解な言葉: Difficult Words</h2><ul>";
+                data.difficult_words.forEach(function(word) {
+                    difficultWordsList += "<li>" + word.japanese + " - " + word.english + "</li>";
+                });
+                difficultWordsList += "</ul>";
+                $("#difficultWords").html(difficultWordsList);
+                var imageHTML = `<img src="${data.image_url}" alt="Generated Image">`;
+                $("#imageContainer").html(imageHTML);
+            } else {
+                $("#openaiResponse").html("<p>Received an invalid command or no data.</p>");
+            }
         });
-        wordsList += "</ul>";
-        $("#wordsContainer").html(wordsList);
-    } else if (data.japanese_story) {
-        // Handle the A Story command
-        $("#japaneseStory").html("<h2>日本語・Japanese</h2><p>" + data.japanese_story + "</p>");
-        $("#englishSummary").html("<h2>英語・English</h2><p>" + data.english_summary + "</p>");
-        var difficultWordsList = "<h2>難解な言葉: Difficult Words</h2><ul>";
-        data.difficult_words.forEach(function(word) {
-            difficultWordsList += "<li>" + word.japanese + " - " + word.english + "</li>";
-        });
-        difficultWordsList += "</ul>";
-        $("#difficultWords").html(difficultWordsList);
-        var imageHTML = `<img src="${data.image_url}" alt="Generated Image">`;
-        $("#imageContainer").html(imageHTML);
-    } else {
-        // Handle an invalid command or missing data
-        $("#openaiResponse").html("<p>Received an invalid command or no data.</p>");
-    }
-});
-
-
-
-
-    
     </script>
     
 

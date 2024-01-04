@@ -87,7 +87,7 @@ def prompter():
     # Render the prompter form
     return render_template('prompter_form.html')
 
-from flask_socketio import emit
+
 
 @socketio.on('send_prompt')
 def handle_send_prompt(data):
@@ -100,24 +100,13 @@ def handle_send_prompt(data):
 
     if CMD == "Word of The Day in Japanese":
         # Emit the raw response for Word of The Day
-        emit('prompt_response', {
-            'openai_response': response
-        })
+        words = extract_words(response)  # Using the extract_words function
+        emit('prompt_response', {'words': words})
     elif CMD == "A Story":
-        # Continue with the existing process for A Story
-        japanese_story, english_summary, difficult_words = process_text(response)
-        image_url = generate_image_with_dalle(english_summary)
-        emit('prompt_response', {
-            'japanese_story': japanese_story,
-            'english_summary': english_summary,
-            'difficult_words': difficult_words,
-            'image_url': image_url
-        })
+        # Existing code for "A Story"
+        # ...
     else:
-        # Handle any other CMDs or invalid CMD
-        emit('prompt_response', {
-            'error': "Invalid Command"
-        })
+        emit('prompt_response', {'error': "Invalid Command"})
 
 
 
