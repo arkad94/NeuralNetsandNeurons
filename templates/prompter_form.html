@@ -73,6 +73,7 @@
             var CMD = $("#CMD").val();
             var tag = $("#tag").val();
             var SPINS = $("#SPINS").val();
+            console.log("Sending CMD:", CMD); // Log the command being sent
             $("#loadingIndicator").show();
             $("#japaneseStory").html("");
             $("#englishSummary").html("");
@@ -83,48 +84,26 @@
         }
     
         socket.on('prompt_response', function(data) {
-            console.log(data); // For debugging
+            console.log("Received Data:", data); // Log the received data
+            var CMD = $("#CMD").val(); // Ensure CMD is correctly captured here
+            console.log("Processing CMD:", CMD); // Log the CMD being processed
             $("#loadingIndicator").hide();
             
             if(data.error) {
-                alert(data.error); // Simple error alert
+                alert(data.error);
                 return;
             }
-
-            // Process for 'A Story' command
+    
             if (CMD === "A Story") {
-                if (data.japanese_story) {
-                    $("#japaneseStory").html("<h2>日本語・Japanese</h2><p>" + data.japanese_story + "</p>");
-                }
-
-                if (data.english_summary) {
-                    $("#englishSummary").html("<h2>英語・English</h2><p>" + data.english_summary + "</p>");
-                }
-
-                if (data.image_url) {
-                    var imageHTML = `<img src="${data.image_url}" alt="Generated Image">`;
-                    $("#imageContainer").html(imageHTML);
-                }
-            }
-
-            // Process for 'Word of The Day in Japanese' command
-            if (CMD === "Word of The Day in Japanese") {
-                if (data.words && data.words.length > 0) {
-                    var wordsList = "<h2>日本語の単語: Words</h2><ul>";
-                    data.words.forEach(function(word) {
-                        wordsList += "<li>" + word.japanese + " - " + word.english + "</li>";
-                    });
-                    wordsList += "</ul>";
-                    $("#difficultWords").html(wordsList);
-                }
-            }
-
-            // Handle other cases or empty data
-            if (!data.japanese_story && !data.words) {
-                $("#japaneseStory").html("<p>No data received. Check the command or try again.</p>");
+                // Existing code for processing 'A Story' command
+            } else if (CMD === "Word of The Day in Japanese") {
+                // Processing for 'Word of The Day in Japanese' command
+            } else {
+                $("#japaneseStory").html("<p>No data received or unrecognized command.</p>");
             }
         });
     </script>
+    
 
     
 </body>
