@@ -1,6 +1,6 @@
 This is my Tech Portfolio that catalogues all my projects.
 
-URL=https://jlo-ai-6b18b35d51db.herokuapp.com/
+URL=https://jlo-ai-6b18b35d51db.herokuapp.com/ (Custom Domain-Pending)
 
 PROJECTS Current Status
 
