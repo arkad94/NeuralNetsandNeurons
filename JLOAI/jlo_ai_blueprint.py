@@ -1,8 +1,8 @@
 
 from flask import Blueprint, render_template, request, redirect, url_for, jsonify
-from flask_socketio import  emit
+from flask_socketio import emit
 from .prompter import send_prompt_to_openai, generate_image_with_dalle, process_text, extract_difficult_words
-from app import socketio
+from app import socketio 
 
 jlo_ai_blueprint = Blueprint('jlo_ai', __name__)
 
@@ -17,7 +17,7 @@ def prompter():
 
 
 
-@socketio.on('send_prompt', namespace='/jlo_ai')  
+@socketio.on('send_prompt', namespace='/jlo_ai')
 def handle_send_prompt(data):
     CMD = data['CMD']
     tag = data['tag']
