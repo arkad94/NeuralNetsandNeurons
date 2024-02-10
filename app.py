@@ -2,7 +2,7 @@ import json
 from gevent import monkey
 monkey.patch_all()
 import os
-from flask import Flask, render_template, request, session, redirect, url_for, jsonify, redirect
+from flask import Flask, render_template, request, session, redirect, url_for, jsonify, redirect, current_app
 from urllib.parse import urlencode, quote_plus
 from authlib.integrations.flask_client import OAuth
 from dotenv import load_dotenv, find_dotenv
@@ -44,6 +44,13 @@ def login():
     return oauth.auth0.authorize_redirect(
         redirect_uri=url_for("callback", _external=True)
     )
+
+@app.route('/show-path')
+def show_path():
+    root_path = current_app.root_path
+    template_path = os.path.join(root_path, 'templates', 'jloaitemplates', 'prompter_form.html')
+    return f"Root path: {root_path}\nTemplate path: {template_path}"
+
 
 @app.route("/callback", methods=["GET", "POST"])
 def callback():
