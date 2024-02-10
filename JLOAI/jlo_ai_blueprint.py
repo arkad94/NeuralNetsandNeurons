@@ -4,7 +4,7 @@ from flask_socketio import emit
 from .prompter import send_prompt_to_openai, generate_image_with_dalle, process_text, extract_difficult_words
 from extensions import socketio 
 
-jlo_ai_blueprint = Blueprint('jlo_ai', __name__)
+jlo_ai_blueprint = Blueprint('jlo_ai', __name__, template_folder='JLOAI')
 
 
 

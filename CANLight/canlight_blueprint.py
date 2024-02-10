@@ -1,6 +1,6 @@
 from flask import Blueprint
 
-canlight_blueprint = Blueprint('canlight', __name__, template_folder='templates')
+canlight_blueprint = Blueprint('canlight', __name__, template_folder='CANLight')
 
 @canlight_blueprint.route('/canlight')
 def canlight():
