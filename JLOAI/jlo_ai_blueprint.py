@@ -1,7 +1,7 @@
 
 from flask import Blueprint, render_template, request, redirect, url_for, jsonify
 from flask_socketio import  emit
-from prompter import send_prompt_to_openai, generate_image_with_dalle, process_text, extract_difficult_words
+from .prompter import send_prompt_to_openai, generate_image_with_dalle, process_text, extract_difficult_words
 
 
 jlo_ai_blueprint = Blueprint('jlo_ai', __name__)
