@@ -5,7 +5,7 @@ from flask import Flask, render_template, request, session, redirect, url_for, j
 from urllib.parse import urlencode, quote_plus
 from authlib.integrations.flask_client import OAuth
 from dotenv import load_dotenv, find_dotenv
-from flask_socketio import SocketIO
+from extensions import socketio
 from JLOAI.jlo_ai_blueprint import jlo_ai_blueprint
 from CANLight.canlight_blueprint import canlight_blueprint
 
@@ -23,7 +23,7 @@ if ENV_FILE:
 app.config['SECRET_KEY'] = os.environ.get("APP_SECRET_KEY")
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///jlo_ai.db'
 app.config['TEMPLATES_AUTO_RELOAD'] = True
-socketio = SocketIO(app, async_mode='gevent')
+socketio.init_app(app, async_mode='gevent')
 
 
 
