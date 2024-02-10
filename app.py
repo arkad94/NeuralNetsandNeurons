@@ -10,7 +10,7 @@ from extensions import socketio
 from JLOAI.jlo_ai_blueprint import jlo_ai_blueprint
 from CANLight.canlight_blueprint import canlight_blueprint
 
-app = Flask(__name__, template_folder='../templates')
+app = Flask(__name__, template_folder='templates')
 app.register_blueprint(jlo_ai_blueprint, url_prefix='/jlo_ai')
 app.register_blueprint(canlight_blueprint, url_prefix='/canlight')
 
