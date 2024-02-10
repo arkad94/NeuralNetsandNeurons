@@ -1,2 +1,2 @@
-web: python JLO.AI/app.py
+web: python app.py
 
