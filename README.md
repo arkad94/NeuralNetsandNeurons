@@ -1,6 +1,6 @@
 This is my Tech Portfolio that catalogues all my projects.
 
-URL=https://jlo-ai-6b18b35d51db.herokuapp.com/ (Custom Domain-Pending)
+URL=https://jlo-ai-6b18b35d51db.herokuapp.com/ (Custom Domain-DNS Propogation Pending)
 
 PROJECTS Current Status
 
@@ -9,7 +9,7 @@ Current Status: Working
 
 2.CANLightv0.01: An Lamp Control Module, controlling a 4x4 WS2812B LEDs that takes commands from the website, turns that into CAN Signals and then sneds them to the LED controller
 Current Status: R.PI Backend- Complete
-                    Frontend- Under Construction
+                    Frontend- poc tested and confirmed, now v0.1 under construction
              Arduino Backend: Pending      
 
 
