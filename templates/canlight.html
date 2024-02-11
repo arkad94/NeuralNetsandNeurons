@@ -10,11 +10,18 @@
 
     <script>
         document.getElementById('activateBtn').onclick = function() {
-            // Send command to Heroku server
-            $.post('/canlight/store-command', { command: 'execute_ctrl' }, function(response) {
-                alert('Command sent! Response: ' + response.message);
-            }).fail(function() {
-                alert('Error sending command');
+            // Correcting the AJAX request
+            $.ajax({
+                url: '/canlight/store-command',
+                type: 'POST',
+                contentType: 'application/json', // Set the content type to JSON
+                data: JSON.stringify({ command: 'execute_ctrl' }), // Stringify the payload
+                success: function(response) {
+                    alert('Command sent! Response: ' + response.message);
+                },
+                error: function() {
+                    alert('Error sending command');
+                }
             });
         };
     </script>
