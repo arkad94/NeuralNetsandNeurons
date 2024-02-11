@@ -2,6 +2,7 @@
 <html>
 <head>
     <title>CANLight Controller</title>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 </head>
 <body>
     <h1>CANLight Controller</h1>
@@ -9,7 +10,12 @@
 
     <script>
         document.getElementById('activateBtn').onclick = function() {
-            alert('Button clicked!');
+            // Send command to Heroku server
+            $.post('/canlight/store-command', { command: 'execute_ctrl' }, function(response) {
+                alert('Command sent! Response: ' + response.message);
+            }).fail(function() {
+                alert('Error sending command');
+            });
         };
     </script>
 </body>
