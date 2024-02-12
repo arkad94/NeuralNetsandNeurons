@@ -1,6 +1,6 @@
 This is my Tech Portfolio that catalogues all my projects.
 
-URL=https://jlo-ai-6b18b35d51db.herokuapp.com/ (Custom Domain-DNS Propogation Pending)
+URL=www.neuralnetsandneurons.com 
 
 PROJECTS Current Status
 
